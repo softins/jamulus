@@ -23,7 +23,7 @@ Some notes for discussion about adding Directory support for IPv6.
 * Servers will initially register for IPv4 using the existing protocol, for compatibility
   with Directory Servers that do not support IPv6.
 
-* A Server that supports IPv6 will follow up with an enhanced registation message
+* A Server that supports IPv6 will follow up with an enhanced registration message
   that additionally contains the IPv6 address of its public interface, as well as
   all the information currently in the existing registration message. This message
   will be ignored by a Directory Server that does not support IPv6. If the Directory
@@ -53,9 +53,9 @@ Some notes for discussion about adding Directory support for IPv6.
   client's IPv4 address.
 
 * A client that supports IPv6 may send an enhanced server list request. A Directory Server
-  that does not understand the message, or does not support IPv6, will ignore thie request.
+  that does not understand the message, or does not support IPv6, will ignore this request.
 
-* A server that understands the enhanced request and support IPv6 will respond with a server list
+* A server that understands the enhanced request and supports IPv6 will respond with a server list
   that includes both IPv4 and (if available) IPv6 addresses for the servers.
 
 * A client that receives the enhanced server list can continue just to send the enhanced list request
