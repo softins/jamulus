@@ -667,6 +667,44 @@ void CLanguageComboBox::OnLanguageActivated ( int iLanguageIdx )
 /******************************************************************************\
 * Other Classes                                                                *
 \******************************************************************************/
+// Host address ----------------------------------------------------------------
+QString CHostAddress::toString ( const EStringMode eStringMode ) const
+{
+    QString strReturn = InetAddr.toString();
+
+    if ( InetAddr.protocol() == QAbstractSocket::IPv6Protocol )
+    {
+        // special case: for local host address, we do not replace the last word
+        if ( ( ( eStringMode == SM_IP_NO_LAST_BYTE ) || ( eStringMode == SM_IP_NO_LAST_BYTE_PORT ) ) &&
+                ( InetAddr != QHostAddress ( QHostAddress::LocalHostIPv6 ) ) )
+        {
+            // replace last word by an "x"
+            strReturn = strReturn.section ( ":", 0, -2 ) + ":x";
+        }
+
+        // enclose IPv6 address in [ ]
+        strReturn = "[" + strReturn + "]";
+    }
+    else // assume IPv4
+    {
+        // special case: for local host address, we do not replace the last byte
+        if ( ( ( eStringMode == SM_IP_NO_LAST_BYTE ) || ( eStringMode == SM_IP_NO_LAST_BYTE_PORT ) ) &&
+                ( InetAddr != QHostAddress ( QHostAddress::LocalHost ) ) )
+        {
+            // replace last byte by an "x"
+            strReturn = strReturn.section ( ".", 0, -2 ) + ".x";
+        }
+    }
+
+    if ( ( eStringMode == SM_IP_PORT ) || ( eStringMode == SM_IP_NO_LAST_BYTE_PORT ) )
+    {
+        // add port number after a semicolon
+        strReturn += ":" + QString().setNum ( iPort );
+    }
+
+    return strReturn;
+}
+
 // Network utility functions ---------------------------------------------------
 bool NetworkUtil::ParseNetworkAddress ( QString strAddress, CHostAddress& HostAddress, bool bEnableIPv6 )
 {

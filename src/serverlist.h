@@ -79,23 +79,25 @@ Note: this mechanism will not work in a private network.
 class CServerListEntry : public CServerInfo
 {
 public:
-    CServerListEntry() : CServerInfo ( CHostAddress(), CHostAddress(), "", QLocale::AnyCountry, "", 0, false ) { UpdateRegistration(); }
+    CServerListEntry() : CServerInfo ( CHostAddress(), CHostAddress(), CHostAddress(), "", QLocale::AnyCountry, "", 0, false ) { UpdateRegistration(); }
 
     CServerListEntry ( const CHostAddress&     NHAddr,
                        const CHostAddress&     NLHAddr,
+                       const CHostAddress&     NHAddr6,
                        const QString&          NsName,
                        const QLocale::Country& NeCountry,
                        const QString&          NsCity,
                        const int               NiMaxNumClients,
                        const bool              NbPermOnline ) :
-        CServerInfo ( NHAddr, NLHAddr, NsName, NeCountry, NsCity, NiMaxNumClients, NbPermOnline )
+        CServerInfo ( NHAddr, NLHAddr, NHAddr6, NsName, NeCountry, NsCity, NiMaxNumClients, NbPermOnline )
     {
         UpdateRegistration();
     }
 
-    CServerListEntry ( const CHostAddress& NHAddr, const CHostAddress& NLHAddr, const CServerCoreInfo& NewCoreServerInfo ) :
+    CServerListEntry ( const CHostAddress& NHAddr, const CHostAddress& NLHAddr, const CHostAddress& NHAddr6, const CServerCoreInfo& NewCoreServerInfo ) :
         CServerInfo ( NHAddr,
                       NLHAddr,
+                      NHAddr6,
                       NewCoreServerInfo.strName,
                       NewCoreServerInfo.eCountry,
                       NewCoreServerInfo.strCity,
@@ -109,6 +111,7 @@ public:
 
     static CServerListEntry parse ( QString strHAddr,
                                     QString strLHAddr,
+                                    QString strHAddr6,
                                     QString sName,
                                     QString sCity,
                                     QString strCountry,
@@ -176,6 +179,7 @@ public:
 
     void CentralServerRegisterServer ( const CHostAddress&    InetAddr,
                                        const CHostAddress&    LInetAddr,
+                                       const CHostAddress&    InetAddr6,
                                        const CServerCoreInfo& ServerInfo,
                                        const QString          strVersion = "" );
     void CentralServerUnregisterServer ( const CHostAddress& InetAddr );

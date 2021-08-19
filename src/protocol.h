@@ -83,6 +83,10 @@
 #define PROTMESSID_CLM_REGISTER_SERVER_RESP   1016 // status of server registration request
 #define PROTMESSID_CLM_REGISTER_SERVER_EX     1017 // register server with extended information
 #define PROTMESSID_CLM_RED_SERVER_LIST        1018 // reduced server list
+#define PROTMESSID_CLM_REQ_SERVER6_LIST       1019 // request server list with IPv6 info
+#define PROTMESSID_CLM_SERVER6_LIST           1020 // server list with IPv6 info
+#define PROTMESSID_CLM_REGISTER_SERVER6       1021 // register server with IPv6 info
+#define PROTMESSID_CLM_REGISTER_SERVER6_EX    1022 // register server with IPv6 info and extended information
 
 // special IDs
 #define PROTMESSID_SPECIAL_SPLIT_MESSAGE 2001 // a container for split messages
@@ -139,11 +143,13 @@ void CreateReqChannelLevelListMes();
     void CreateCLPingWithNumClientsMes ( const CHostAddress& InetAddr, const int iMs, const int iNumClients );
     void CreateCLServerFullMes ( const CHostAddress& InetAddr );
     void CreateCLRegisterServerMes ( const CHostAddress& InetAddr, const CHostAddress& LInetAddr, const CServerCoreInfo& ServerInfo );
+    void CreateCLRegisterServerMes ( const CHostAddress& InetAddr, const CHostAddress& LInetAddr, const CHostAddress& InetAddr6, const CServerCoreInfo& ServerInfo );
     void CreateCLRegisterServerExMes ( const CHostAddress& InetAddr, const CHostAddress& LInetAddr, const CServerCoreInfo& ServerInfo );
+    void CreateCLRegisterServerExMes ( const CHostAddress& InetAddr, const CHostAddress& LInetAddr, const CHostAddress& InetAddr6, const CServerCoreInfo& ServerInfo );
     void CreateCLUnregisterServerMes ( const CHostAddress& InetAddr );
-    void CreateCLServerListMes ( const CHostAddress& InetAddr, const CVector<CServerInfo> vecServerInfo );
+    void CreateCLServerListMes ( const CHostAddress& InetAddr, const CVector<CServerInfo> vecServerInfo, const bool bWithIPv6 = false );
     void CreateCLRedServerListMes ( const CHostAddress& InetAddr, const CVector<CServerInfo> vecServerInfo );
-    void CreateCLReqServerListMes ( const CHostAddress& InetAddr );
+    void CreateCLReqServerListMes ( const CHostAddress& InetAddr, const bool bWithIPv6 = false );
     void CreateCLSendEmptyMesMes ( const CHostAddress& InetAddr, const CHostAddress& TargetInetAddr );
     void CreateCLEmptyMes ( const CHostAddress& InetAddr );
     void CreateCLDisconnection ( const CHostAddress& InetAddr );
@@ -254,11 +260,15 @@ protected:
     bool EvaluateCLPingWithNumClientsMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
     bool EvaluateCLServerFullMes();
     bool EvaluateCLRegisterServerMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
+    bool EvaluateCLRegisterServer6Mes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
     bool EvaluateCLRegisterServerExMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
+    bool EvaluateCLRegisterServer6ExMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
     bool EvaluateCLUnregisterServerMes ( const CHostAddress& InetAddr );
     bool EvaluateCLServerListMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
+    bool EvaluateCLServer6ListMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
     bool EvaluateCLRedServerListMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
     bool EvaluateCLReqServerListMes ( const CHostAddress& InetAddr );
+    bool EvaluateCLReqServer6ListMes ( const CHostAddress& InetAddr );
     bool EvaluateCLSendEmptyMesMes ( const CVector<uint8_t>& vecData );
     bool EvaluateCLDisconnectionMes ( const CHostAddress& InetAddr );
     bool EvaluateCLVersionAndOSMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );

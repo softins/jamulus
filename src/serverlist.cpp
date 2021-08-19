@@ -29,6 +29,7 @@
 // --- CServerListEntry ---
 CServerListEntry CServerListEntry::parse ( QString strHAddr,
                                            QString strLHAddr,
+                                           QString strHAddr6,
                                            QString sName,
                                            QString sCity,
                                            QString strCountry,
@@ -37,7 +38,7 @@ CServerListEntry CServerListEntry::parse ( QString strHAddr,
                                            bool    bEnableIPv6 )
 {
     CHostAddress haServerHostAddr;
-    NetworkUtil::ParseNetworkAddress ( strHAddr, haServerHostAddr, bEnableIPv6 );
+    NetworkUtil::ParseNetworkAddress ( strHAddr, haServerHostAddr, false /* IPv4 only */ );
     if ( CHostAddress() == haServerHostAddr )
     {
         // do not proceed without server host address!
@@ -45,10 +46,19 @@ CServerListEntry CServerListEntry::parse ( QString strHAddr,
     }
 
     CHostAddress haServerLocalAddr;
-    NetworkUtil::ParseNetworkAddress ( strLHAddr, haServerLocalAddr, bEnableIPv6 );
+    NetworkUtil::ParseNetworkAddress ( strLHAddr, haServerLocalAddr, false /* IPv4 only */ );
     if ( haServerLocalAddr.iPort == 0 )
     {
         haServerLocalAddr.iPort = haServerHostAddr.iPort;
+    }
+
+    CHostAddress haServerHostAddr6;
+    if ( bEnableIPv6 ) {
+        NetworkUtil::ParseNetworkAddress ( strHAddr6, haServerHostAddr6, true /* IPv6 */ );
+        if ( haServerHostAddr6.iPort == 0 )
+        {
+            haServerHostAddr6.iPort = haServerHostAddr.iPort;
+        }
     }
 
     // Capture parsing success of integers
@@ -69,6 +79,7 @@ CServerListEntry CServerListEntry::parse ( QString strHAddr,
 
     return CServerListEntry ( haServerHostAddr,
                               haServerLocalAddr,
+                              haServerHostAddr6,
                               CServerCoreInfo ( FromBase64ToString ( sName.trimmed().left ( MAX_LEN_SERVER_NAME ) ),
                                                 lcCountry,
                                                 FromBase64ToString ( sCity.trimmed().left ( MAX_LEN_SERVER_CITY ) ),
@@ -82,6 +93,7 @@ QString CServerListEntry::toCSV()
 
     sl.append ( this->HostAddr.toString() );
     sl.append ( this->LHostAddr.toString() );
+    sl.append ( this->HostAddr6.toString() );
     sl.append ( ToBase64 ( this->strName ) );
     sl.append ( ToBase64 ( this->strCity ) );
     sl.append ( QString::number ( this->eCountry ) );
@@ -155,7 +167,7 @@ CServerListManager::CServerListManager ( const quint16  iNPortNum,
     // itself for his server list. If we are a directory server, we assume that
     // we are a permanent server.
     CServerListEntry
-        ThisServerListEntry ( CHostAddress(), SlaveCurLocalHostAddress, "", QLocale::system().country(), "", iNumChannels, bIsCentralServer );
+        ThisServerListEntry ( CHostAddress(), SlaveCurLocalHostAddress, SlaveCurLocalHostAddress6, "", QLocale::system().country(), "", iNumChannels, bIsCentralServer );
 
     // parse the server info string according to definition:
     // [this server name];[this server city];[this server country as QLocale ID] (; ... ignored)
@@ -194,6 +206,8 @@ CServerListManager::CServerListManager ( const quint16  iNPortNum,
         {
             CentralServerLoadServerList ( strServerListFileName );
         }
+
+        // TODO: IPv6 addresses in white list?
 
         // whitelist parsing
         if ( !strServerListFilter.isEmpty() )
@@ -405,6 +419,7 @@ void CServerListManager::OnTimerPollList()
 
 void CServerListManager::CentralServerRegisterServer ( const CHostAddress&    InetAddr,
                                                        const CHostAddress&    LInetAddr,
+                                                       const CHostAddress&    InetAddr6,
                                                        const CServerCoreInfo& ServerInfo,
                                                        const QString          strVersion )
 {
@@ -456,7 +471,7 @@ void CServerListManager::CentralServerRegisterServer ( const CHostAddress&    In
             if ( iCurServerListSize < MAX_NUM_SERVERS_IN_SERVER_LIST )
             {
                 // create a new server list entry and init with received data
-                ServerList.append ( CServerListEntry ( InetAddr, LInetAddr, ServerInfo ) );
+                ServerList.append ( CServerListEntry ( InetAddr, LInetAddr, InetAddr6, ServerInfo ) );
                 iSelIdx = iCurServerListSize;
             }
         }
@@ -464,6 +479,10 @@ void CServerListManager::CentralServerRegisterServer ( const CHostAddress&    In
         {
             // update all data and call update registration function
             ServerList[iSelIdx].LHostAddr        = LInetAddr;
+            if ( !InetAddr6.InetAddr.isNull() )
+            {
+                ServerList[iSelIdx].HostAddr6        = InetAddr6;
+            }
             ServerList[iSelIdx].strName          = ServerInfo.strName;
             ServerList[iSelIdx].eCountry         = ServerInfo.eCountry;
             ServerList[iSelIdx].strCity          = ServerInfo.strCity;
@@ -615,7 +634,7 @@ void CServerListManager::CentralServerLoadServerList ( const QString strServerLi
         }
 
         CServerListEntry serverListEntry =
-            CServerListEntry::parse ( slLine[0], slLine[1], slLine[2], slLine[3], slLine[4], slLine[5], slLine[6].toInt() != 0, bEnableIPv6 );
+            CServerListEntry::parse ( slLine[0], slLine[1], slLine[2], slLine[3], slLine[4], slLine[5], slLine[6], slLine[7].toInt() != 0, bEnableIPv6 );
 
         // We expect servers to have addresses...
         if ( ( CHostAddress() == serverListEntry.HostAddr ) )

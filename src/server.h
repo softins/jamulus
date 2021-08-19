@@ -441,7 +441,7 @@ public slots:
 
     void OnCLRegisterServerReceived ( CHostAddress InetAddr, CHostAddress LInetAddr, CServerCoreInfo ServerInfo )
     {
-        ServerListManager.CentralServerRegisterServer ( InetAddr, LInetAddr, ServerInfo );
+        ServerListManager.CentralServerRegisterServer ( InetAddr, LInetAddr, CHostAddress(), ServerInfo );
     }
 
     void OnCLRegisterServerExReceived ( CHostAddress    InetAddr,
@@ -450,7 +450,7 @@ public slots:
                                         COSUtil::EOpSystemType,
                                         QString strVersion )
     {
-        ServerListManager.CentralServerRegisterServer ( InetAddr, LInetAddr, ServerInfo, strVersion );
+        ServerListManager.CentralServerRegisterServer ( InetAddr, LInetAddr, CHostAddress(), ServerInfo, strVersion );
     }
 
     void OnCLRegisterServerResp ( CHostAddress /* unused */, ESvrRegResult eResult ) { ServerListManager.StoreRegistrationResult ( eResult ); }

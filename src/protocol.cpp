@@ -311,12 +311,49 @@ CONNECTION LESS MESSAGES
       IP in this case which will be served to clients from the Internet.
 
 
+- PROTMESSID_CLM_REGISTER_SERVER6: Register a server, providing server
+                                  information including IPv6 address
+
+    +------------------------------+ ...
+    | 2 bytes server internal port | ...
+    +------------------------------+ ...
+        ... -----------------+----------------------------------+ ...
+        ...  2 bytes country | 1 byte maximum connected clients | ...
+        ... -----------------+----------------------------------+ ...
+        ... ---------------------+ ...
+        ...  1 byte is permanent | ...
+        ... ---------------------+ ...
+        ... ------------------+----------------------------------+ ...
+        ...  2 bytes number n | n bytes UTF-8 string server name | ...
+        ... ------------------+----------------------------------+ ...
+        ... ------------------+----------------------------------------------+ ...
+        ...  2 bytes number n | n bytes UTF-8 string server internal address | ...
+        ... ------------------+----------------------------------------------+ ...
+        ... ------------------+------------------------------------------+ ...
+        ...  2 bytes number n | n bytes UTF-8 string server IPv6 address | ...
+        ... ------------------+------------------------------------------+ ...
+        ... ------------------+---------------------------+
+        ...  2 bytes number n | n bytes UTF-8 string city |
+        ... ------------------+---------------------------+
+
+    All fields as above for PROTMESSID_CLM_REGISTER_SERVER, with the additional field:
+    - "serer IPv6 address" represents the IPv6 address as a colon-separated string.
+
+
 - PROTMESSID_CLM_REGISTER_SERVER_EX: Register a server, providing extended server
                                      information
 
     +--------------------------------+-------------------------------+
     | PROTMESSID_CLM_REGISTER_SERVER | PROTMESSID_CLM_VERSION_AND_OS |
     +--------------------------------+-------------------------------+
+
+
+- PROTMESSID_CLM_REGISTER_SERVER6_EX: Register a server, providing extended server
+                                      information including IPv6 address
+
+    +---------------------------------+-------------------------------+
+    | PROTMESSID_CLM_REGISTER_SERVER6 | PROTMESSID_CLM_VERSION_AND_OS |
+    +---------------------------------+-------------------------------+
 
 
 - PROTMESSID_CLM_UNREGISTER_SERVER: Unregister a server
@@ -336,6 +373,18 @@ CONNECTION LESS MESSAGES
       of the PROTMESSID_CLM_REGISTER_SERVER message is used
 
 
+- PROTMESSID_CLM_SERVER6_LIST: Server list message
+
+    for each registered server append following data:
+
+    +--------------------+--------------------------------+
+    | 4 bytes IP address | PROTMESSID_CLM_REGISTER_SERVER6 |
+    +--------------------+--------------------------------+
+
+    - "PROTMESSID_CLM_REGISTER_SERVER6" means that exactly the same message body
+      of the PROTMESSID_CLM_REGISTER_SERVER6 message is used
+
+
 - PROTMESSID_CLM_RED_SERVER_LIST: Reduced server list message (to have less UDP fragmentation)
 
     for each registered server append following data:
@@ -353,12 +402,26 @@ CONNECTION LESS MESSAGES
     note: does not have any data -> n = 0
 
 
+- PROTMESSID_CLM_REQ_SERVER6_LIST: Request server list with IPv6 info
+
+    note: does not have any data -> n = 0
+
+
 - PROTMESSID_CLM_SEND_EMPTY_MESSAGE: Send "empty message" message
+
+    for IPv4 clients:
 
     +--------------------+--------------+
     | 4 bytes IP address | 2 bytes port |
     +--------------------+--------------+
 
+    or for IPv6 clients:
+
+    +---------------------+--------------+
+    | 16 bytes IP address | 2 bytes port |
+    +---------------------+--------------+
+
+    the format will be determined from the message length.
 
 - PROTMESSID_CLM_DISCONNECTION: Disconnect message
 
@@ -871,12 +934,20 @@ if ( rand() < ( RAND_MAX / 2 ) ) return false;
         EvaluateCLServerListMes ( InetAddr, vecbyMesBodyData );
         break;
 
+    case PROTMESSID_CLM_SERVER6_LIST:
+        EvaluateCLServer6ListMes ( InetAddr, vecbyMesBodyData );
+        break;
+
     case PROTMESSID_CLM_RED_SERVER_LIST:
         EvaluateCLRedServerListMes ( InetAddr, vecbyMesBodyData );
         break;
 
     case PROTMESSID_CLM_REQ_SERVER_LIST:
         EvaluateCLReqServerListMes ( InetAddr );
+        break;
+
+    case PROTMESSID_CLM_REQ_SERVER6_LIST:
+        EvaluateCLReqServer6ListMes ( InetAddr );
         break;
 
     case PROTMESSID_CLM_SEND_EMPTY_MESSAGE:
@@ -887,8 +958,16 @@ if ( rand() < ( RAND_MAX / 2 ) ) return false;
         EvaluateCLRegisterServerMes ( InetAddr, vecbyMesBodyData );
         break;
 
+    case PROTMESSID_CLM_REGISTER_SERVER6:
+        EvaluateCLRegisterServer6Mes ( InetAddr, vecbyMesBodyData );
+        break;
+
     case PROTMESSID_CLM_REGISTER_SERVER_EX:
         EvaluateCLRegisterServerExMes ( InetAddr, vecbyMesBodyData );
+        break;
+
+    case PROTMESSID_CLM_REGISTER_SERVER6_EX:
+        EvaluateCLRegisterServer6ExMes ( InetAddr, vecbyMesBodyData );
         break;
 
     case PROTMESSID_CLM_UNREGISTER_SERVER:
@@ -1753,12 +1832,21 @@ bool CProtocol::EvaluateCLServerFullMes()
 
 void CProtocol::CreateCLRegisterServerMes ( const CHostAddress& InetAddr, const CHostAddress& LInetAddr, const CServerCoreInfo& ServerInfo )
 {
+    CreateCLRegisterServerMes ( InetAddr, LInetAddr, CHostAddress(), ServerInfo );
+}
+
+void CProtocol::CreateCLRegisterServerMes ( const CHostAddress& InetAddr, const CHostAddress& LInetAddr, const CHostAddress& InetAddr6, const CServerCoreInfo& ServerInfo )
+{
+    const bool bWithIPv6 = !InetAddr6.InetAddr.isNull();
+
     int iPos = 0; // init position pointer
 
     // convert server info strings to utf-8
     const QByteArray strUTF8LInetAddr = LInetAddr.InetAddr.toString().toUtf8();
     const QByteArray strUTF8Name      = ServerInfo.strName.toUtf8();
     const QByteArray strUTF8City      = ServerInfo.strCity.toUtf8();
+
+    // TODO: Include IPv6 data if bWithIPv6
 
     // size of current message body
     const int iEntrLen = 2 +                           // server internal port number
@@ -1793,7 +1881,13 @@ void CProtocol::CreateCLRegisterServerMes ( const CHostAddress& InetAddr, const 
     // city
     PutStringUTF8OnStream ( vecData, iPos, strUTF8City );
 
-    CreateAndImmSendConLessMessage ( PROTMESSID_CLM_REGISTER_SERVER, vecData, InetAddr );
+    CreateAndImmSendConLessMessage ( bWithIPv6 ? PROTMESSID_CLM_REGISTER_SERVER6 : PROTMESSID_CLM_REGISTER_SERVER, vecData, InetAddr );
+}
+
+bool CProtocol::EvaluateCLRegisterServer6Mes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData )
+{
+    // TODO: populate this function properly
+    return EvaluateCLRegisterServerMes ( InetAddr, vecData );
 }
 
 bool CProtocol::EvaluateCLRegisterServerMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData )
@@ -1864,6 +1958,13 @@ bool CProtocol::EvaluateCLRegisterServerMes ( const CHostAddress& InetAddr, cons
 
 void CProtocol::CreateCLRegisterServerExMes ( const CHostAddress& InetAddr, const CHostAddress& LInetAddr, const CServerCoreInfo& ServerInfo )
 {
+    CreateCLRegisterServerExMes ( InetAddr, LInetAddr, CHostAddress(), ServerInfo );
+}
+
+void CProtocol::CreateCLRegisterServerExMes ( const CHostAddress& InetAddr, const CHostAddress& LInetAddr, const CHostAddress& InetAddr6, const CServerCoreInfo& ServerInfo )
+{
+    const bool bWithIPv6 = !InetAddr6.InetAddr.isNull();
+
     int iPos = 0; // init position pointer
 
     // convert server info strings to utf-8
@@ -1871,6 +1972,8 @@ void CProtocol::CreateCLRegisterServerExMes ( const CHostAddress& InetAddr, cons
     const QByteArray strUTF8Name      = ServerInfo.strName.toUtf8();
     const QByteArray strUTF8City      = ServerInfo.strCity.toUtf8();
     const QByteArray strUTF8Version   = QString ( VERSION ).toUtf8();
+
+    // TODO: Include IPv6 data if bWithIPv6
 
     // size of current message body
     const int iEntrLen = 2 +                           // server internal port number
@@ -1913,7 +2016,15 @@ void CProtocol::CreateCLRegisterServerExMes ( const CHostAddress& InetAddr, cons
     // version
     PutStringUTF8OnStream ( vecData, iPos, strUTF8Version );
 
-    CreateAndImmSendConLessMessage ( PROTMESSID_CLM_REGISTER_SERVER_EX, vecData, InetAddr );
+    CreateAndImmSendConLessMessage ( bWithIPv6 ? PROTMESSID_CLM_REGISTER_SERVER6_EX : PROTMESSID_CLM_REGISTER_SERVER_EX, vecData, InetAddr );
+}
+
+bool CProtocol::EvaluateCLRegisterServer6ExMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData )
+{
+    // TODO: populate this function
+    (void) InetAddr;
+    (void) vecData;
+    return false;
 }
 
 bool CProtocol::EvaluateCLRegisterServerExMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData )
@@ -2011,7 +2122,7 @@ bool CProtocol::EvaluateCLUnregisterServerMes ( const CHostAddress& InetAddr )
     return false; // no error
 }
 
-void CProtocol::CreateCLServerListMes ( const CHostAddress& InetAddr, const CVector<CServerInfo> vecServerInfo )
+void CProtocol::CreateCLServerListMes ( const CHostAddress& InetAddr, const CVector<CServerInfo> vecServerInfo, const bool bWithIPv6 )
 {
     const int iNumServers = vecServerInfo.Size();
 
@@ -2025,6 +2136,8 @@ void CProtocol::CreateCLServerListMes ( const CHostAddress& InetAddr, const CVec
         const QByteArray strUTF8Name  = vecServerInfo[i].strName.toUtf8();
         const QByteArray strUTF8Empty = QString ( "" ).toUtf8();
         const QByteArray strUTF8City  = vecServerInfo[i].strCity.toUtf8();
+
+        // TODO: Put IPv6 address in somewhere - needs 16 bytes instead of 4
 
         // size of current list entry
         const int iCurListEntrLen = 4 +                      // IP address
@@ -2059,14 +2172,22 @@ void CProtocol::CreateCLServerListMes ( const CHostAddress& InetAddr, const CVec
         // name
         PutStringUTF8OnStream ( vecData, iPos, strUTF8Name );
 
-        // empty string
+        // empty string ( was placeholder for internal address )
         PutStringUTF8OnStream ( vecData, iPos, strUTF8Empty );
 
         // city
         PutStringUTF8OnStream ( vecData, iPos, strUTF8City );
     }
 
-    CreateAndImmSendConLessMessage ( PROTMESSID_CLM_SERVER_LIST, vecData, InetAddr );
+    CreateAndImmSendConLessMessage ( bWithIPv6 ? PROTMESSID_CLM_SERVER6_LIST : PROTMESSID_CLM_SERVER_LIST, vecData, InetAddr );
+}
+
+bool CProtocol::EvaluateCLServer6ListMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData )
+{
+    // TODO: populate this function
+    (void) InetAddr;
+    (void) vecData;
+    return false;
 }
 
 bool CProtocol::EvaluateCLServerListMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData )
@@ -2122,6 +2243,7 @@ bool CProtocol::EvaluateCLServerListMes ( const CHostAddress& InetAddr, const CV
         // add server information to vector
         vecServerInfo.Add ( CServerInfo ( CHostAddress ( QHostAddress ( iIpAddr ), iPort ),
                                           CHostAddress ( QHostAddress ( iIpAddr ), iPort ),
+                                          CHostAddress ( QHostAddress (), iPort ),
                                           strName,
                                           eCountry,
                                           strCity,
@@ -2207,6 +2329,7 @@ bool CProtocol::EvaluateCLRedServerListMes ( const CHostAddress& InetAddr, const
         // add server information to vector
         vecServerInfo.Add ( CServerInfo ( CHostAddress ( QHostAddress ( iIpAddr ), iPort ),
                                           CHostAddress ( QHostAddress ( iIpAddr ), iPort ),
+                                          CHostAddress ( QHostAddress (), iPort ),
                                           strName,
                                           QLocale::AnyCountry, // set to any country since the information is not transmitted
                                           "",                  // empty city name since the information is not transmitted
@@ -2226,9 +2349,16 @@ bool CProtocol::EvaluateCLRedServerListMes ( const CHostAddress& InetAddr, const
     return false; // no error
 }
 
-void CProtocol::CreateCLReqServerListMes ( const CHostAddress& InetAddr )
+void CProtocol::CreateCLReqServerListMes ( const CHostAddress& InetAddr, const bool bWithIPv6 )
 {
-    CreateAndImmSendConLessMessage ( PROTMESSID_CLM_REQ_SERVER_LIST, CVector<uint8_t> ( 0 ), InetAddr );
+    CreateAndImmSendConLessMessage ( bWithIPv6 ? PROTMESSID_CLM_REQ_SERVER6_LIST : PROTMESSID_CLM_REQ_SERVER_LIST, CVector<uint8_t> ( 0 ), InetAddr );
+}
+
+bool CProtocol::EvaluateCLReqServer6ListMes ( const CHostAddress& InetAddr )
+{
+    // TODO: populate this function
+    (void) InetAddr;
+    return false;
 }
 
 bool CProtocol::EvaluateCLReqServerListMes ( const CHostAddress& InetAddr )

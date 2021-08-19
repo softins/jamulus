@@ -703,7 +703,7 @@ public:
         SM_IP_NO_LAST_BYTE_PORT
     };
 
-    CHostAddress() : InetAddr ( static_cast<quint32> ( 0 ) ), iPort ( 0 ) {}
+    CHostAddress() : InetAddr ( QHostAddress() ), iPort ( 0 ) {}
 
     CHostAddress ( const QHostAddress NInetAddr, const quint16 iNPort ) : InetAddr ( NInetAddr ), iPort ( iNPort ) {}
 
@@ -720,26 +720,7 @@ public:
     // compare operator
     bool operator== ( const CHostAddress& CompAddr ) const { return ( ( CompAddr.InetAddr == InetAddr ) && ( CompAddr.iPort == iPort ) ); }
 
-    QString toString ( const EStringMode eStringMode = SM_IP_PORT ) const
-    {
-        QString strReturn = InetAddr.toString();
-
-        // special case: for local host address, we do not replace the last byte
-        if ( ( ( eStringMode == SM_IP_NO_LAST_BYTE ) || ( eStringMode == SM_IP_NO_LAST_BYTE_PORT ) ) &&
-             ( InetAddr != QHostAddress ( QHostAddress::LocalHost ) ) )
-        {
-            // replace last byte by an "x"
-            strReturn = strReturn.section ( ".", 0, 2 ) + ".x";
-        }
-
-        if ( ( eStringMode == SM_IP_PORT ) || ( eStringMode == SM_IP_NO_LAST_BYTE_PORT ) )
-        {
-            // add port number after a semicolon
-            strReturn += ":" + QString().setNum ( iPort );
-        }
-
-        return strReturn;
-    }
+    QString toString ( const EStringMode eStringMode = SM_IP_PORT ) const;
 
     QHostAddress InetAddr;
     quint16      iPort;
@@ -922,10 +903,11 @@ public:
 class CServerInfo : public CServerCoreInfo
 {
 public:
-    CServerInfo() : HostAddr ( CHostAddress() ), LHostAddr ( CHostAddress() ) {}
+    CServerInfo() : HostAddr ( CHostAddress() ), LHostAddr ( CHostAddress() ), HostAddr6 ( CHostAddress() ) {}
 
     CServerInfo ( const CHostAddress&     NHAddr,
                   const CHostAddress&     NLAddr,
+                  const CHostAddress&     NHAddr6,
                   const QString&          NsName,
                   const QLocale::Country& NeCountry,
                   const QString&          NsCity,
@@ -933,7 +915,8 @@ public:
                   const bool              NbPermOnline ) :
         CServerCoreInfo ( NsName, NeCountry, NsCity, NiMaxNumClients, NbPermOnline ),
         HostAddr ( NHAddr ),
-        LHostAddr ( NLAddr )
+        LHostAddr ( NLAddr ),
+        HostAddr6 ( NHAddr6 )
     {}
 
     // internet address of the server
@@ -941,6 +924,9 @@ public:
 
     // server internal address
     CHostAddress LHostAddr;
+
+    // server IPv6 address
+    CHostAddress HostAddr6;
 };
 
 // Network transport properties ------------------------------------------------
