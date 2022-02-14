@@ -48,3 +48,5 @@ jamulus_plugin_import.cpp
 .github_release_changelog.md
 /debian/
 src/translation/*.qm
+src/res/qmake_qmake_qm_files.qrc
+src/res/qrc_qmake_qmake_qm_files.cpp
