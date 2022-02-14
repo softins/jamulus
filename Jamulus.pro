@@ -26,7 +26,7 @@ contains(VERSION, .*dev.*) {
 
 CONFIG += qt \
     thread \
-    lrelease
+    lrelease embed_translations
 
 QT += network \
     xml \
@@ -46,9 +46,6 @@ contains(CONFIG, "headless") {
     QT += multimedia
 }
 
-# Hint: When adding new translations, make sure to update
-# DISTFILES (above) and src/resources.qrc as well.
-LRELEASE_DIR = src/translation
 TRANSLATIONS = src/translation/translation_de_DE.ts \
     src/translation/translation_fr_FR.ts \
     src/translation/translation_ko_KR.ts \
@@ -63,7 +60,7 @@ TRANSLATIONS = src/translation/translation_de_DE.ts \
     src/translation/translation_sv_SE.ts \
     src/translation/translation_zh_CN.ts
 
-QMAKE_CLEAN += src/translation/*.qm
+QM_FILES_RESOURCE_PREFIX = translations
 
 INCLUDEPATH += src
 
