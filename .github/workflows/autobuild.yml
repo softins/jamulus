@@ -230,6 +230,10 @@ jobs:
           NOTARIZATION_PASSWORD:    ${{ secrets.NOTARIZATION_PASSWORD }}
           KEYCHAIN_PASSWORD:        ${{ secrets.KEYCHAIN_PASSWORD }}
 
+      - name:                       List generated Makefiles
+        id:                         list-makefiles
+        run:                        ls -l Makefile*
+
       - name:                       Post-Build for ${{ matrix.config.config_name }}
         id:                         get-artifacts
         run:                        ${{ matrix.config.base_command }} get-artifacts
