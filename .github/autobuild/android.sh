@@ -93,7 +93,7 @@ pass_artifact_to_job() {
     #echo "::set-output name=artifact_1::${artifact}"
 
     local makefiles="makefiles_android.tar.gz"
-    tar -czvf deploy/${makefiles} Makefile*
+    tar -czvf deploy/${makefiles} Makefile* src/res/qmake_qmake_qm_files.qrc
     echo "::set-output name=artifact_1::${makefiles}"
 }
 

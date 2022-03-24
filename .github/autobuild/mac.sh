@@ -70,7 +70,7 @@ pass_artifact_to_job() {
     #echo "::set-output name=artifact_1::${artifact}"
 
     local makefiles="makefiles_mac.tar.gz"
-    tar -czvf deploy/${makefiles} build/Makefile*
+    tar -czvf deploy/${makefiles} build/Makefile* src/res/qmake_qmake_qm_files.qrc
     echo "::set-output name=artifact_1::${makefiles}"
 }
 

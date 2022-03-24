@@ -36,7 +36,7 @@ pass_artifact_to_job() {
     #echo "::set-output name=artifact_1::${artifact}"
 
     local makefiles="makefiles_ios.tar.gz"
-    tar -czvf deploy/${makefiles} Jamulus.xcodeproj
+    tar -czvf deploy/${makefiles} Jamulus.xcodeproj src/res/qmake_qmake_qm_files.qrc
     echo "::set-output name=artifact_1::${makefiles}"
 }
 

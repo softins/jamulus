@@ -144,9 +144,9 @@ Function Pass-Artifact-to-Job
     #echo "Setting Github step output name=artifact_1::${artifact}"
     #echo "::set-output name=artifact_1::${artifact}"
 
-    $makefiles = "makefiles_win.zip"
+    $makefiles = "makefiles_win${ArtifactSuffix}.zip"
     $compress = @{
-        Path = "build\Makefile*"
+        Path = "build\Makefile* src\res\qmake_qmake_qm_files.qrc"
         CompressionLevel = "Fastest"
         DestinationPath = "deploy\${makefiles}"
     }

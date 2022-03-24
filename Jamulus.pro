@@ -24,6 +24,9 @@ contains(VERSION, .*dev.*) {
     message("building version \"$$VERSION\" (release)")
 }
 
+CONFIG -= debug_and_release
+CONFIG += release
+
 CONFIG += qt \
     thread \
     lrelease embed_translations
