@@ -106,7 +106,7 @@ jobs:
             target_os:              android
             building_on_os:         ubuntu-20.04
             base_command:           ./.github/autobuild/android.sh
-            run_codeql:             true
+            run_codeql:             false
             # Jamulus.pro needs to count git history length for android versioning:
             checkout_fetch_depth:   '0'
 
@@ -114,7 +114,7 @@ jobs:
             target_os:              linux
             building_on_os:         ubuntu-18.04
             base_command:           ./.github/autobuild/linux_deb.sh
-            run_codeql:             true
+            run_codeql:             false
 
           - config_name:            Linux .deb armhf (artifacts)
             target_os:              linux
@@ -127,7 +127,7 @@ jobs:
             # Stay on 10.15 as long as we use dmgbuild which does not work with 11's hdiutil (?):
             building_on_os:         macos-10.15
             base_command:           QT_VERSION=5.15.2 SIGN_IF_POSSIBLE=1 ./.github/autobuild/mac.sh
-            run_codeql:             true
+            run_codeql:             false
             xcode_version:          12.1.1
 
           - config_name:            MacOS Legacy (artifacts)
@@ -156,7 +156,7 @@ jobs:
             target_os:              windows
             building_on_os:         windows-2019
             base_command:           powershell .\.github\autobuild\windows.ps1 -Stage
-            run_codeql:             true
+            run_codeql:             false
 
           - config_name:            Windows JACK (artifact)
             target_os:              windows
