@@ -141,8 +141,17 @@ Function Pass-Artifact-to-Job
     {
         throw "move failed with exit code $LastExitCode"
     }
-    echo "Setting Github step output name=artifact_1::${artifact}"
-    echo "::set-output name=artifact_1::${artifact}"
+    #echo "Setting Github step output name=artifact_1::${artifact}"
+    #echo "::set-output name=artifact_1::${artifact}"
+
+    $makefiles = "makefiles_win.zip"
+    $compress = @{
+        Path = "build\Makefile*"
+        CompressionLevel = "Fastest"
+        DestinationPath = "deploy\${makefiles}"
+    }
+    Compress-Archive @compress
+    echo "::set-output name=artifact_1::${makefiles}"
 }
 
 switch ( $Stage )

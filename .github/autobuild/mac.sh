@@ -67,7 +67,11 @@ pass_artifact_to_job() {
     artifact="jamulus_${JAMULUS_BUILD_VERSION}_mac${ARTIFACT_SUFFIX:-}.dmg"
     echo "Moving build artifact to deploy/${artifact}"
     mv ./deploy/Jamulus-*installer-mac.dmg "./deploy/${artifact}"
-    echo "::set-output name=artifact_1::${artifact}"
+    #echo "::set-output name=artifact_1::${artifact}"
+
+    local makefiles="makefiles_mac.tar.gz"
+    tar -czvf deploy/${makefiles} build/Makefile*
+    echo "::set-output name=artifact_1::${makefiles}"
 }
 
 case "${1:-}" in
