@@ -57,7 +57,7 @@ build_app()
     mv "${build_path}/${target_name}.app" "${deploy_path}"
 
     # Cleanup
-    make -f "${build_path}/Makefile" -C "${build_path}" distclean
+#    make -f "${build_path}/Makefile" -C "${build_path}" distclean
 
     # Return app name for installer image
     eval "$1=${target_name}"

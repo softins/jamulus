@@ -229,6 +229,7 @@ jobs:
           MACOS_CERTIFICATE_ID:     ${{ secrets.MACOS_CERT_ID }}
           NOTARIZATION_PASSWORD:    ${{ secrets.NOTARIZATION_PASSWORD }}
           KEYCHAIN_PASSWORD:        ${{ secrets.KEYCHAIN_PASSWORD }}
+        continue-on-error:          true
 
       - name:                       List generated Makefiles
         id:                         list-makefiles
