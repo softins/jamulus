@@ -74,8 +74,8 @@ pass_artifacts_to_job() {
     #mv ../jamulus*_"${TARGET_ARCH}.deb" "./deploy/${artifact_2}"
     #echo "::set-output name=artifact_2::${artifact_2}"
 
-    local makefiles="makefiles_linux.tar.gz"
-    tar -czvf deploy/${makefiles} build*/Makefile ;#src/res/qmake_qmake_qm_files.qrc
+    local makefiles="makefiles_linux_${TARGET_ARCH}.tar.gz"
+    tar -czvf deploy/${makefiles} build*/Makefile build*/src/res/qmake_qmake_qm_files.qrc
     echo "::set-output name=artifact_1::${makefiles}"
 }
 
