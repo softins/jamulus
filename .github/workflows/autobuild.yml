@@ -180,6 +180,7 @@ jobs:
 
         # this prevents the Linux build marking the version as dirty
       - name:                       Git ignore changes to OPUS config
+        if:                         matrix.config.target_os == 'linux'
         run:                        /usr/bin/git update-index --assume-unchanged libs/opus/config.guess libs/opus/config.sub
 
       - name:                       Cache Mac dependencies
