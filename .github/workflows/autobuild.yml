@@ -178,8 +178,9 @@ jobs:
           submodules:               true
           fetch-depth:              ${{ matrix.config.checkout_fetch_depth || '1' }}
 
-      - name:                       Ignore changes to OPUS
-        run:                        /usr/bin/git update-index --assume-unchanged libs/opus
+        # this prevents the Linux build marking the version as dirty
+      - name:                       Git ignore changes to OPUS config
+        run:                        /usr/bin/git update-index --assume-unchanged libs/opus/config.guess libs/opus/config.sub
 
       - name:                       Cache Mac dependencies
         if:                         matrix.config.target_os == 'macos'
