@@ -257,7 +257,7 @@ Function Build-App
         -Arguments ("--$BuildConfig", "--compiler-runtime", "--dir=$DeployPath\$BuildArch",
         "$BuildPath\$AppName.exe")
 
-    Move-Item -Path "$BuildPath\$BuildConfig\$AppName.exe" -Destination "$DeployPath\$BuildArch" -Force
+    Move-Item -Path "$BuildPath\$AppName.exe" -Destination "$DeployPath\$BuildArch" -Force
     Invoke-Native-Command -Command "nmake" -Arguments ("clean")
     Set-Location -Path $RootPath
 }
