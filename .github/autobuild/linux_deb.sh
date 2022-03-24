@@ -75,7 +75,7 @@ pass_artifacts_to_job() {
     #echo "::set-output name=artifact_2::${artifact_2}"
 
     local makefiles="makefiles_linux.tar.gz"
-    tar -czvf deploy/${makefiles} build*/Makefile src/res/qmake_qmake_qm_files.qrc
+    tar -czvf deploy/${makefiles} build*/Makefile ;#src/res/qmake_qmake_qm_files.qrc
     echo "::set-output name=artifact_1::${makefiles}"
 }
 
@@ -91,7 +91,7 @@ case "${1:-}" in
         ;;
     list-makefiles)
         pwd
-        find . -type f -name Makefile\* -ls
+        find . -type f \( -name Makefile\* -o -name \*.qrc \) -ls
         ;;
     *)
         echo "Unknown stage '${1:-}'"

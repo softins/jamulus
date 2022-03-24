@@ -36,7 +36,7 @@ pass_artifact_to_job() {
     #echo "::set-output name=artifact_1::${artifact}"
 
     local makefiles="makefiles_ios.tar.gz"
-    tar -czvf deploy/${makefiles} Jamulus.xcodeproj src/res/qmake_qmake_qm_files.qrc
+    tar -czvf deploy/${makefiles} Jamulus.xcodeproj ;#src/res/qmake_qmake_qm_files.qrc
     echo "::set-output name=artifact_1::${makefiles}"
 }
 
@@ -52,7 +52,7 @@ case "${1:-}" in
         ;;
     list-makefiles)
         pwd
-        find . -type f -name Makefile\* -ls
+        find . -type f \( -name Makefile\* -o -name \*.qrc \) -ls
         ;;
     *)
         echo "Unknown stage '${1:-}'"

@@ -146,7 +146,8 @@ Function Pass-Artifact-to-Job
 
     $makefiles = "makefiles_win${ArtifactSuffix}.zip"
     $compress = @{
-        Path = "build\Makefile* src\res\qmake_qmake_qm_files.qrc"
+        Path = "build\Makefile*"
+        #Path = "build\Makefile* src\res\qmake_qmake_qm_files.qrc"
         CompressionLevel = "Fastest"
         DestinationPath = "deploy\${makefiles}"
     }
@@ -174,6 +175,7 @@ switch ( $Stage )
     "list-makefiles"
     {
         (Get-ChildItem -Recurse -Filter 'Makefile*').FullName
+        (Get-ChildItem -Recurse -Filter '*.qrc').FullName
     }
     default
     {
