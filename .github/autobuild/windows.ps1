@@ -162,6 +162,10 @@ switch ( $Stage )
     {
         Pass-Artifact-to-Job
     }
+    "list-makefiles"
+    {
+        (Get-ChildItem -Recurse -Filter 'Makefile*').FullName
+    }
     default
     {
         throw "Unknown stage ${Stage}"

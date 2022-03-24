@@ -85,6 +85,10 @@ case "${1:-}" in
     get-artifacts)
         pass_artifacts_to_job
         ;;
+    list-makefiles)
+        pwd
+        find . -type f -name Makefile\* -ls
+        ;;
     *)
         echo "Unknown stage '${1:-}'"
         exit 1

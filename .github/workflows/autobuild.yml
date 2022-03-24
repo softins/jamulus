@@ -233,9 +233,7 @@ jobs:
 
       - name:                       List generated Makefiles
         id:                         list-makefiles
-        run:                        |
-                                      pwd
-                                      find . -type f -name Makefile\* -ls
+        run:                        ${{ matrix.config.base_command }} list-makefiles
 
       - name:                       Post-Build for ${{ matrix.config.config_name }}
         id:                         get-artifacts
