@@ -146,7 +146,7 @@ Function Pass-Artifact-to-Job
 
     $makefiles = "makefiles_win${ArtifactSuffix}.zip"
     $compress = @{
-        Path = "build\Makefile* build\src\res\qmake_qmake_qm_files.qrc"
+        Path = "build\Makefile*", "build\src\res\qmake_qmake_qm_files.qrc"
         CompressionLevel = "Fastest"
         DestinationPath = "deploy\${makefiles}"
     }
