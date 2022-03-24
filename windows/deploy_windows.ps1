@@ -246,16 +246,16 @@ Function Build-App
     if (Get-Command "jom.exe" -ErrorAction SilentlyContinue)
     {
         echo "Building with jom /J ${Env:NUMBER_OF_PROCESSORS}"
-        Invoke-Native-Command -Command "jom" -Arguments ("/J", "${Env:NUMBER_OF_PROCESSORS}", "$BuildConfig")
+        Invoke-Native-Command -Command "jom" -Arguments ("/J", "${Env:NUMBER_OF_PROCESSORS}")
     }
     else
     {
         echo "Building with nmake (install Qt jom if you want parallel builds)"
-        Invoke-Native-Command -Command "nmake" -Arguments ("$BuildConfig")
+        Invoke-Native-Command -Command "nmake"
     }
     Invoke-Native-Command -Command "$Env:QtWinDeployPath" `
         -Arguments ("--$BuildConfig", "--compiler-runtime", "--dir=$DeployPath\$BuildArch",
-        "$BuildPath\$BuildConfig\$AppName.exe")
+        "$BuildPath\$AppName.exe")
 
     Move-Item -Path "$BuildPath\$BuildConfig\$AppName.exe" -Destination "$DeployPath\$BuildArch" -Force
     Invoke-Native-Command -Command "nmake" -Arguments ("clean")
