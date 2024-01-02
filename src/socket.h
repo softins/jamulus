@@ -61,7 +61,7 @@ public:
     void SendPacket ( const CVector<uint8_t>& vecbySendBuf, const CHostAddress& HostAddr );
 
     bool GetAndResetbJitterBufferOKFlag();
-    void Close();
+    void Shutdown();
 
 protected:
     void    Init ( const quint16 iPortNumber, const quint16 iQosNumber, const QString& strServerBindIP );
@@ -69,11 +69,7 @@ protected:
     quint16 iQosNumber;
     QString strServerBindIP;
 
-#ifdef _WIN32
-    SOCKET UdpSocket;
-#else
-    int UdpSocket;
-#endif
+    QUdpSocket* pUdpSocket;
 
     QMutex Mutex;
 
@@ -165,7 +161,7 @@ protected:
             bRun = false;
 
             // to leave blocking wait for receive
-            pSocket->Close();
+            pSocket->Shutdown();
 
             // give thread some time to terminate
             wait ( 5000 );
@@ -214,11 +210,3 @@ protected:
 signals:
     void InvalidPacketReceived ( CHostAddress RecHostAddr );
 };
-
-// overlay generic, IPv4 and IPv6 sockaddr structures
-typedef union
-{
-    struct sockaddr     sa;
-    struct sockaddr_in  sa4;
-    struct sockaddr_in6 sa6;
-} uSockAddr;
