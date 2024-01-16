@@ -83,12 +83,14 @@ public:
 
     CServerListEntry ( const CHostAddress&     NHAddr,
                        const CHostAddress&     NLHAddr,
+                       const CHostAddress&     NHAddr6,
                        const QString&          NsName,
                        const QLocale::Country& NeCountry,
                        const QString&          NsCity,
                        const int               NiMaxNumClients,
                        const bool              NbPermOnline ) :
-        CServerInfo ( NHAddr, NLHAddr, NsName, NeCountry, NsCity, NiMaxNumClients, NbPermOnline )
+        CServerInfo ( NHAddr, NLHAddr, NsName, NeCountry, NsCity, NiMaxNumClients, NbPermOnline ),
+        HAddr6 ( NHAddr6 )
     {
         UpdateRegistration();
     }
@@ -116,6 +118,9 @@ public:
                                     bool    isPermanent,
                                     bool    bEnableIPv6 );
     QString                 toCSV();
+
+    CHostAddress HAddr6;
+    QString      IP6ToString() { return HAddr6.InetAddr.toString(); }
 
     // time on which the entry was registered
     QElapsedTimer RegisterTime;

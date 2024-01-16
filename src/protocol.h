@@ -139,7 +139,10 @@ public:
     void CreateCLPingWithNumClientsMes ( const CHostAddress& InetAddr, const int iMs, const int iNumClients );
     void CreateCLServerFullMes ( const CHostAddress& InetAddr );
     void CreateCLRegisterServerMes ( const CHostAddress& InetAddr, const CHostAddress& LInetAddr, const CServerCoreInfo& ServerInfo );
-    void CreateCLRegisterServerExMes ( const CHostAddress& InetAddr, const CHostAddress& LInetAddr, const CServerCoreInfo& ServerInfo );
+    void CreateCLRegisterServerExMes ( const CHostAddress&    InetAddr,
+                                       const CHostAddress&    LInetAddr,
+                                       const CHostAddress&    InetAddr6,
+                                       const CServerCoreInfo& ServerInfo );
     void CreateCLUnregisterServerMes ( const CHostAddress& InetAddr );
     void CreateCLServerListMes ( const CHostAddress& InetAddr, const CVector<CServerInfo> vecServerInfo );
     void CreateCLRedServerListMes ( const CHostAddress& InetAddr, const CVector<CServerInfo> vecServerInfo );

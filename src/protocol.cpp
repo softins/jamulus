@@ -1856,12 +1856,17 @@ bool CProtocol::EvaluateCLRegisterServerMes ( const CHostAddress& InetAddr, cons
     return false; // no error
 }
 
-void CProtocol::CreateCLRegisterServerExMes ( const CHostAddress& InetAddr, const CHostAddress& LInetAddr, const CServerCoreInfo& ServerInfo )
+void CProtocol::CreateCLRegisterServerExMes ( const CHostAddress&    InetAddr,
+                                              const CHostAddress&    LInetAddr,
+                                              const CHostAddress&    InetAddr6,
+                                              const CServerCoreInfo& ServerInfo )
 {
     int iPos = 0; // init position pointer
 
     // convert server info strings to utf-8
-    const QByteArray strUTF8LInetAddr = LInetAddr.InetAddr.toString().toUtf8();
+    const QByteArray strUTF8LInetAddr = ( InetAddr6.InetAddr.protocol() == QAbstractSocket::IPv6Protocol )
+                                            ? LInetAddr.InetAddr.toString().toUtf8() + " " + InetAddr6.InetAddr.toString().toUtf8()
+                                            : LInetAddr.InetAddr.toString().toUtf8();
     const QByteArray strUTF8Name      = ServerInfo.strName.toUtf8();
     const QByteArray strUTF8City      = ServerInfo.strCity.toUtf8();
     const QByteArray strUTF8Version   = QString ( VERSION ).toUtf8();

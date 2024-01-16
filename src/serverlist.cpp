@@ -190,7 +190,10 @@ CServerListManager::CServerListManager ( const quint16  iNPortNum,
      *
      * If we are a directory, we assume that we are a permanent server.
      */
-    CServerListEntry ThisServerListEntry ( haServerAddr, ServerPublicIP, "", QLocale::system().country(), "", iNumChannels, bIsDirectory );
+    CServerListEntry
+        ThisServerListEntry ( haServerAddr, ServerPublicIP, ServerPublicIP6, "", QLocale::system().country(), "", iNumChannels, bIsDirectory );
+
+    qInfo() << "Server Entry IPv6 =" << ThisServerListEntry.IP6ToString();
 
     // parse the server info string according to definition:
     // [this server name];[this server city];[this server country as QLocale ID] (; ... ignored)
@@ -987,7 +990,7 @@ void CServerListManager::SetRegistered ( const bool bIsRegister )
             // For a registered server, the server properties are stored in the
             // very first item in the server list (which is actually no server list
             // but just one item long for the registered server).
-            pConnLessProtocol->CreateCLRegisterServerExMes ( DirectoryAddress, ServerList[0].LHostAddr, ServerList[0] );
+            pConnLessProtocol->CreateCLRegisterServerExMes ( DirectoryAddress, ServerList[0].LHostAddr, ServerList[0].HAddr6, ServerList[0] );
         }
         else
         {
