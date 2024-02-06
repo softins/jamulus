@@ -100,7 +100,7 @@ void CTcpServer::OnNewConnection()
         pSocket->deleteLater();
     } );
 
-    connect ( pSocket, &QTcpSocket::readyRead, [this, pSocket]() {
+    connect ( pSocket, &QTcpSocket::readyRead, [this, pSocket, peerAddress]() {
         // handle received Jamulus protocol packet
     } );
 }
