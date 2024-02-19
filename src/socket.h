@@ -27,6 +27,7 @@
 #include <QObject>
 #include <QThread>
 #include <QMutex>
+#include <QTcpSocket>
 #include <vector>
 #include "global.h"
 #include "protocol.h"
@@ -106,7 +107,7 @@ signals:
 
     void ProtocolMessageReceived ( int iRecCounter, int iRecID, CVector<uint8_t> vecbyMesBodyData, CHostAddress HostAdr );
 
-    void ProtocolCLMessageReceived ( int iRecID, CVector<uint8_t> vecbyMesBodyData, CHostAddress HostAdr );
+    void ProtocolCLMessageReceived ( int iRecID, CVector<uint8_t> vecbyMesBodyData, CHostAddress HostAdr, QTcpSocket *pTcpSocket = nullptr );
 };
 
 /* Socket which runs in a separate high priority thread --------------------- */

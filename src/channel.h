@@ -86,6 +86,9 @@ public:
     void                SetAddress ( const CHostAddress NAddr ) { InetAddr = NAddr; }
     const CHostAddress& GetAddress() const { return InetAddr; }
 
+    void SetTcpSocket( QTcpSocket* pSock ) { pTcpSocket = pSock; }
+    QTcpSocket* GetTcpSocket() { return pTcpSocket; }
+
     void ResetInfo()
     {
         bIsIdentified = false;
@@ -187,6 +190,7 @@ protected:
 
     // connection parameters
     CHostAddress InetAddr;
+    QTcpSocket* pTcpSocket;
 
     // channel info
     CChannelCoreInfo ChannelInfo;
@@ -255,9 +259,9 @@ public slots:
         PutProtocolData ( iRecCounter, iRecID, vecbyMesBodyData, RecHostAddr );
     }
 
-    void OnProtocolCLMessageReceived ( int iRecID, CVector<uint8_t> vecbyMesBodyData, CHostAddress RecHostAddr )
+    void OnProtocolCLMessageReceived ( int iRecID, CVector<uint8_t> vecbyMesBodyData, CHostAddress RecHostAddr, QTcpSocket *pTcpSocket )
     {
-        emit DetectedCLMessage ( vecbyMesBodyData, iRecID, RecHostAddr );
+        emit DetectedCLMessage ( vecbyMesBodyData, iRecID, RecHostAddr, pTcpSocket );
     }
 
     void OnNewConnection() { emit NewConnection(); }
@@ -282,7 +286,7 @@ signals:
     void RecorderStateReceived ( ERecorderState eRecorderState );
     void Disconnected();
 
-    void DetectedCLMessage ( CVector<uint8_t> vecbyMesBodyData, int iRecID, CHostAddress RecHostAddr );
+    void DetectedCLMessage ( CVector<uint8_t> vecbyMesBodyData, int iRecID, CHostAddress RecHostAddr, QTcpSocket *pTcpSocket );
 
     void ParseMessageBody ( CVector<uint8_t> vecbyMesBodyData, int iRecCounter, int iRecID );
 };

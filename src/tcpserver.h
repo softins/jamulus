@@ -31,22 +31,36 @@
 #include <QVector>
 #include <memory>
 
+#include "global.h"
+#include "protocol.h"
+#include "util.h"
+
+// The header files channel.h and server.h require to include this header file
+// so we get a cyclic dependency. To solve this issue, a prototype of the
+// channel class and server class is defined here.
+class CServer;  // forward declaration of CServer
+class CChannel; // forward declaration of CChannel
+
 /* Classes ********************************************************************/
 class CTcpServer : public QObject
 {
     Q_OBJECT
 
 public:
-    CTcpServer ( QObject* parent, const QString& strServerBindIP, int iPort, bool bEnableIPv6 );
+    CTcpServer ( CServer* pNServP, const QString& strServerBindIP, int iPort, bool bEnableIPv6 );
     virtual ~CTcpServer();
 
     bool Start();
 
 private:
+    CServer*  pServer;  // for server
     const QString strServerBindIP;
     const int     iPort;
     const bool    bEnableIPv6;
     QTcpServer*   pTcpServer;
+
+signals:
+    void ProtocolCLMessageReceived ( int iRecID, CVector<uint8_t> vecbyMesBodyData, CHostAddress HostAdr, QTcpSocket *pTcpSocket );
 
 protected slots:
     void OnNewConnection();

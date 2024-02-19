@@ -28,6 +28,7 @@
 #include <QTimer>
 #include <QDateTime>
 #include <QUdpSocket>
+#include <QTcpSocket>
 #include <QHostAddress>
 #include "global.h"
 #include "socket.h"
@@ -218,7 +219,7 @@ public slots:
             vecServerInfo[0].strCity          = GenRandomString();
             vecServerInfo[0].strName          = GenRandomString();
 
-            Protocol.CreateCLServerListMes ( CurHostAddress, vecServerInfo );
+            Protocol.CreateCLServerListMes ( CurHostAddress, nullptr, vecServerInfo );
             break;
 
         case 20: // PROTMESSID_CLM_REQ_SERVER_LIST
@@ -261,7 +262,7 @@ public slots:
             vecChanInfo[0].iChanID = GenRandomIntInRange ( -2, 20 );
             vecChanInfo[0].strName = GenRandomString();
 
-            Protocol.CreateCLConnClientsListMes ( CurHostAddress, vecChanInfo );
+            Protocol.CreateCLConnClientsListMes ( CurHostAddress, nullptr, vecChanInfo );
             break;
 
         case 29: // PROTMESSID_CLM_REQ_CONN_CLIENTS_LIST
@@ -303,5 +304,8 @@ public slots:
         Protocol.Reset();
     }
 
-    void OnSendCLMessage ( CHostAddress, CVector<uint8_t> vecMessage ) { OnSendProtMessage ( vecMessage ); }
+    void OnSendCLMessage ( CHostAddress, CVector<uint8_t> vecMessage )
+    {
+        OnSendProtMessage ( vecMessage );
+    }
 };

@@ -22,16 +22,19 @@
  *
  \******************************************************************************/
 
-#include "global.h"
 #include "tcpserver.h"
 
-CTcpServer::CTcpServer ( QObject* parent, const QString& strServerBindIP, int iPort, bool bEnableIPv6 ) :
-    QObject ( parent ),
+#include "server.h"
+#include "channel.h"
+
+CTcpServer::CTcpServer ( CServer* pNServP, const QString& strServerBindIP, int iPort, bool bEnableIPv6 ) :
+    pServer ( pNServP ),
     strServerBindIP ( strServerBindIP ),
     iPort ( iPort ),
     bEnableIPv6 ( bEnableIPv6 ),
     pTcpServer ( new QTcpServer ( this ) )
 {
+    connect ( this, &CTcpServer::ProtocolCLMessageReceived, pServer, &CServer::OnProtocolCLMessageReceived );
     connect ( pTcpServer, &QTcpServer::newConnection, this, &CTcpServer::OnNewConnection );
 }
 
@@ -80,28 +83,85 @@ void CTcpServer::OnNewConnection()
         return;
     }
 
-    // express IPv4 address as IPv4
-    QHostAddress peerAddress = pSocket->peerAddress();
 
-    if ( peerAddress.protocol() == QAbstractSocket::IPv6Protocol )
+    // express IPv4 address as IPv4
+    CHostAddress peerAddress ( pSocket->peerAddress(), pSocket->peerPort() );
+
+    if ( peerAddress.InetAddr.protocol() == QAbstractSocket::IPv6Protocol )
     {
         bool    ok;
-        quint32 ip4 = peerAddress.toIPv4Address ( &ok );
+        quint32 ip4 = peerAddress.InetAddr.toIPv4Address ( &ok );
         if ( ok )
         {
-            peerAddress.setAddress ( ip4 );
+            peerAddress.InetAddr.setAddress ( ip4 );
         }
     }
 
-    qDebug() << "- Jamulus-TCP: received connection from:" << peerAddress.toString();
+    qDebug() << "- Jamulus-TCP: received connection from:" << peerAddress.InetAddr.toString();
+
+    // allocate memory for network receive and send buffer in samples
+    CVector<uint8_t> vecbyRecBuf;
+    vecbyRecBuf.Init ( MAX_SIZE_BYTES_NETW_BUF );
 
     connect ( pSocket, &QTcpSocket::disconnected, [this, pSocket, peerAddress]() {
-        qDebug() << "- Jamulus-TCP: connection from:" << peerAddress.toString() << "closed";
+        qDebug() << "- Jamulus-TCP: connection from:" << peerAddress.InetAddr.toString() << "closed";
         pSocket->deleteLater();
     } );
 
-    connect ( pSocket, &QTcpSocket::readyRead, [this, pSocket, peerAddress]() {
+    connect ( pSocket, &QTcpSocket::readyRead, [this, pSocket, peerAddress, vecbyRecBuf]() {
         // handle received Jamulus protocol packet
+
+        // check if this is a protocol message
+        int              iRecCounter;
+        int              iRecID;
+        CVector<uint8_t> vecbyMesBodyData;
+
+        long iNumBytesRead = pSocket->read((char *) &vecbyRecBuf[0], MESS_HEADER_LENGTH_BYTE);
+        if (iNumBytesRead == -1) {
+            return;
+        }
+
+        if (iNumBytesRead < MESS_HEADER_LENGTH_BYTE) {
+            qDebug() << "-- short read: expected" << MESS_HEADER_LENGTH_BYTE << "bytes, got" << iNumBytesRead;
+            return;
+        }
+
+        long iPayloadLength = CProtocol::GetBodyLength( vecbyRecBuf );
+
+        long iNumBytesRead2 = pSocket->read((char *) &vecbyRecBuf[ MESS_HEADER_LENGTH_BYTE ], iPayloadLength );
+        if (iNumBytesRead2 == -1) {
+            return;
+        }
+
+        if (iNumBytesRead2 < iPayloadLength) {
+            qDebug() << "-- short read: expected" << iPayloadLength << "bytes, got" << iNumBytesRead2;
+            return;
+        }
+
+        iNumBytesRead += iNumBytesRead2;
+
+        qDebug() << "- Jamulus-TCP: received protocol message of length" << iNumBytesRead;
+
+        if ( !CProtocol::ParseMessageFrame ( vecbyRecBuf, iNumBytesRead, vecbyMesBodyData, iRecCounter, iRecID ) )
+        {
+            qDebug() << "- Jamulus-TCP: message parsed OK, ID =" << iRecID;
+
+            // this is a protocol message, check the type of the message
+            if ( CProtocol::IsConnectionLessMessageID ( iRecID ) )
+            {
+                //### TODO: BEGIN ###//
+                // a copy of the vector is used -> avoid malloc in real-time routine
+                emit ProtocolCLMessageReceived ( iRecID, vecbyMesBodyData, peerAddress, pSocket );
+                //### TODO: END ###//
+            }
+            else
+            {
+                //### TODO: BEGIN ###//
+                // a copy of the vector is used -> avoid malloc in real-time routine
+                // emit ProtocolMessageReceived ( iRecCounter, iRecID, vecbyMesBodyData, peerAddress, pSocket );
+                //### TODO: END ###//
+            }
+        }
     } );
 }
 
