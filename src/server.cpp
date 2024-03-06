@@ -463,14 +463,14 @@ void CServer::OnServerFull ( CHostAddress RecHostAddr )
     ConnLessProtocol.CreateCLServerFullMes ( RecHostAddr );
 }
 
-void CServer::OnSendCLProtMessage ( CHostAddress InetAddr, CVector<uint8_t> vecMessage, QTcpSocket *pTcpSocket )
+void CServer::OnSendCLProtMessage ( CHostAddress InetAddr, CVector<uint8_t> vecMessage, QTcpSocket* pTcpSocket )
 {
     // the protocol queries me to call the function to send the message
     // send it through the network
     if ( pTcpSocket )
     {
         // send to the connected socket directly
-        pTcpSocket->write ( (const char *) &( (CVector<uint8_t>) vecMessage )[0], vecMessage.Size() );
+        pTcpSocket->write ( (const char*) &( (CVector<uint8_t>) vecMessage )[0], vecMessage.Size() );
     }
     else
     {
@@ -1432,7 +1432,7 @@ void CServer::DumpChannels ( const QString& title )
     }
 }
 
-void CServer::OnProtocolCLMessageReceived ( int iRecID, CVector<uint8_t> vecbyMesBodyData, CHostAddress RecHostAddr, QTcpSocket *pTcpSocket )
+void CServer::OnProtocolCLMessageReceived ( int iRecID, CVector<uint8_t> vecbyMesBodyData, CHostAddress RecHostAddr, QTcpSocket* pTcpSocket )
 {
     QMutexLocker locker ( &Mutex );
 

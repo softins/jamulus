@@ -377,7 +377,7 @@ protected slots:
     void OnSendProtMessage ( CVector<uint8_t> vecMessage );
     void OnInvalidPacketReceived ( CHostAddress RecHostAddr );
 
-    void OnDetectedCLMessage ( CVector<uint8_t> vecbyMesBodyData, int iRecID, CHostAddress RecHostAddr, QTcpSocket *pTcpSocket );
+    void OnDetectedCLMessage ( CVector<uint8_t> vecbyMesBodyData, int iRecID, CHostAddress RecHostAddr, QTcpSocket* pTcpSocket );
 
     void OnReqJittBufSize() { CreateServerJitterBufferMessage(); }
     void OnJittBufSizeChanged ( int iNewJitBufSize );
@@ -392,7 +392,7 @@ protected slots:
     }
     void OnCLPingReceived ( CHostAddress InetAddr, int iMs );
 
-    void OnSendCLProtMessage ( CHostAddress InetAddr, CVector<uint8_t> vecMessage, QTcpSocket *pTcpSocket );
+    void OnSendCLProtMessage ( CHostAddress InetAddr, CVector<uint8_t> vecMessage, QTcpSocket* pTcpSocket );
 
     void OnCLPingWithNumClientsReceived ( CHostAddress InetAddr, int iMs, int iNumClients );
 

@@ -53,14 +53,14 @@ public:
     bool Start();
 
 private:
-    CServer*  pServer;  // for server
+    CServer*      pServer; // for server
     const QString strServerBindIP;
     const int     iPort;
     const bool    bEnableIPv6;
     QTcpServer*   pTcpServer;
 
 signals:
-    void ProtocolCLMessageReceived ( int iRecID, CVector<uint8_t> vecbyMesBodyData, CHostAddress HostAdr, QTcpSocket *pTcpSocket );
+    void ProtocolCLMessageReceived ( int iRecID, CVector<uint8_t> vecbyMesBodyData, CHostAddress HostAdr, QTcpSocket* pTcpSocket );
 
 protected slots:
     void OnNewConnection();

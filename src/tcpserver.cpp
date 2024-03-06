@@ -83,7 +83,6 @@ void CTcpServer::OnNewConnection()
         return;
     }
 
-
     // express IPv4 address as IPv4
     CHostAddress peerAddress ( pSocket->peerAddress(), pSocket->peerPort() );
 
@@ -116,24 +115,28 @@ void CTcpServer::OnNewConnection()
         int              iRecID;
         CVector<uint8_t> vecbyMesBodyData;
 
-        long iNumBytesRead = pSocket->read((char *) &vecbyRecBuf[0], MESS_HEADER_LENGTH_BYTE);
-        if (iNumBytesRead == -1) {
+        long iNumBytesRead = pSocket->read ( (char*) &vecbyRecBuf[0], MESS_HEADER_LENGTH_BYTE );
+        if ( iNumBytesRead == -1 )
+        {
             return;
         }
 
-        if (iNumBytesRead < MESS_HEADER_LENGTH_BYTE) {
+        if ( iNumBytesRead < MESS_HEADER_LENGTH_BYTE )
+        {
             qDebug() << "-- short read: expected" << MESS_HEADER_LENGTH_BYTE << "bytes, got" << iNumBytesRead;
             return;
         }
 
-        long iPayloadLength = CProtocol::GetBodyLength( vecbyRecBuf );
+        long iPayloadLength = CProtocol::GetBodyLength ( vecbyRecBuf );
 
-        long iNumBytesRead2 = pSocket->read((char *) &vecbyRecBuf[ MESS_HEADER_LENGTH_BYTE ], iPayloadLength );
-        if (iNumBytesRead2 == -1) {
+        long iNumBytesRead2 = pSocket->read ( (char*) &vecbyRecBuf[MESS_HEADER_LENGTH_BYTE], iPayloadLength );
+        if ( iNumBytesRead2 == -1 )
+        {
             return;
         }
 
-        if (iNumBytesRead2 < iPayloadLength) {
+        if ( iNumBytesRead2 < iPayloadLength )
+        {
             qDebug() << "-- short read: expected" << iPayloadLength << "bytes, got" << iNumBytesRead2;
             return;
         }

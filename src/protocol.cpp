@@ -605,7 +605,10 @@ void CProtocol::CreateAndImmSendAcknMess ( const int& iID, const int& iCnt )
     emit MessReadyForSending ( vecAcknMessage );
 }
 
-void CProtocol::CreateAndImmSendConLessMessage ( const int iID, const CVector<uint8_t>& vecData, const CHostAddress& InetAddr, QTcpSocket *pTcpSocket )
+void CProtocol::CreateAndImmSendConLessMessage ( const int               iID,
+                                                 const CVector<uint8_t>& vecData,
+                                                 const CHostAddress&     InetAddr,
+                                                 QTcpSocket*             pTcpSocket )
 {
     CVector<uint8_t> vecNewMessage;
 
@@ -838,7 +841,10 @@ void CProtocol::ParseMessageBody ( const CVector<uint8_t>& vecbyMesBodyData, con
     }
 }
 
-void CProtocol::ParseConnectionLessMessageBody ( const CVector<uint8_t>& vecbyMesBodyData, const int iRecID, const CHostAddress& InetAddr, QTcpSocket *pTcpSocket )
+void CProtocol::ParseConnectionLessMessageBody ( const CVector<uint8_t>& vecbyMesBodyData,
+                                                 const int               iRecID,
+                                                 const CHostAddress&     InetAddr,
+                                                 QTcpSocket*             pTcpSocket )
 {
     //### TEST: BEGIN ###//
     // Test channel implementation: randomly delete protocol messages (50 % loss)
@@ -2584,12 +2590,12 @@ bool CProtocol::EvaluateCLRegisterServerResp ( const CHostAddress& InetAddr, con
 \******************************************************************************/
 int CProtocol::GetBodyLength ( const CVector<uint8_t>& vecbyData )
 {
-    int iCurPos = 5;    // position of length calculation
+    int iCurPos = 5; // position of length calculation
 
     // 2 bytes length
     const int iLenBy = static_cast<int> ( GetValFromStream ( vecbyData, iCurPos, 2 ) );
 
-    return iLenBy + 2;  // remaining length to read, including CRC
+    return iLenBy + 2; // remaining length to read, including CRC
 }
 
 bool CProtocol::ParseMessageFrame ( const CVector<uint8_t>& vecbyData,

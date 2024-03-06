@@ -663,7 +663,7 @@ void CServerListManager::Remove ( const CHostAddress& InetAddr )
  and allow the client connect dialogue instead to use the IP and Port from which the list was received.
 
  */
-void CServerListManager::RetrieveAll ( const CHostAddress& InetAddr, QTcpSocket *pTcpSocket )
+void CServerListManager::RetrieveAll ( const CHostAddress& InetAddr, QTcpSocket* pTcpSocket )
 {
     QMutexLocker locker ( &Mutex );
 
