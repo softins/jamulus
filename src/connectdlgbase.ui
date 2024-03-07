@@ -117,22 +117,15 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>30</width>
-         <height>0</height>
+         <width>24</width>
+         <height>24</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>16777215</height>
+         <width>24</width>
+         <height>24</height>
         </size>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
        </property>
        <property name="text">
         <string notr="true">🗑</string>
