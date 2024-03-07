@@ -110,24 +110,35 @@
      <item>
       <widget class="QPushButton" name="butDeleteServerAddr">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Ignored">
+        <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="minimumSize">
+        <size>
+         <width>30</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
-         <width>24</width>
+         <width>30</width>
          <height>16777215</height>
         </size>
        </property>
        <property name="font">
         <font>
-         <bold>true</bold>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
        <property name="text">
-        <string notr="true">⌫</string>
+        <string notr="true">🗑</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
