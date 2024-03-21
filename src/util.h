@@ -126,7 +126,7 @@ public:
     CVector ( const int iNeSi ) { Init ( iNeSi ); }
     CVector ( const int iNeSi, const TData tInVa ) { Init ( iNeSi, tInVa ); }
 
-    CVector ( CVector const& )            = default;
+    CVector ( CVector const& ) = default;
     CVector& operator= ( CVector const& ) = default;
 
     void Init ( const int iNewSize );
@@ -747,7 +747,7 @@ public:
 
     CHostAddress() : InetAddr ( static_cast<quint32> ( 0 ) ), iPort ( 0 ) {}
 
-    CHostAddress ( const QHostAddress NInetAddr, const quint16 iNPort ) : InetAddr ( NInetAddr ), iPort ( iNPort ) {}
+    CHostAddress ( const QHostAddress& NInetAddr, const quint16 iNPort ) : InetAddr ( NInetAddr ), iPort ( iNPort ) {}
 
     CHostAddress ( const CHostAddress& NHAddr ) : InetAddr ( NHAddr.InetAddr ), iPort ( NHAddr.iPort ) {}
 
