@@ -76,6 +76,7 @@ CServer::CServer ( const int          iNewMaxNumChan,
     bDisableRaw ( bNDisableRaw ),
     bIPv6Available ( false ),
     Socket ( this, iPortNumber, iQosNumber, strServerBindIP, bNDisableIPv6, bIPv6Available ),
+    TcpServer ( this, strServerBindIP, iPortNumber, bNEnableIPv6 ),
     Logging(),
     iFrameCount ( 0 ),
     HighPrecisionTimer ( bNUseDoubleSystemFrameSize ),
@@ -324,6 +325,10 @@ CServer::CServer ( const int          iNewMaxNumChan,
     // start the socket (it is important to start the socket after all
     // initializations and connections)
     Socket.Start();
+    if ( bEnableTcp )
+    {
+        TcpServer.Start();
+    }
 }
 
 template<unsigned int slotId>

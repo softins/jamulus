@@ -184,6 +184,8 @@ public:
     void CreateCLServerFeaturesMes ( const CHostAddress& InetAddr, const uint32_t iResult );
     void CreateCLWelcomeMessageMes ( const CHostAddress& InetAddr, const QString strWelcomeMessage );
 
+    static int GetBodyLength ( const CVector<uint8_t>& vecbyData );
+
     static bool ParseMessageFrame ( const CVector<uint8_t>& vecbyData,
                                     const int               iNumBytesIn,
                                     CVector<uint8_t>&       vecbyMesBodyData,

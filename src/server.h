@@ -64,6 +64,7 @@
 #include "util.h"
 #include "serverlogging.h"
 #include "serverlist.h"
+#include "tcpserver.h"
 #include "recorder/jamcontroller.h"
 
 #include "threadpool.h"
@@ -297,6 +298,7 @@ protected:
     // actual working objects
     bool            bIPv6Available; // must be before Socket - passed by reference to Socket
     CHighPrioSocket Socket;
+    CTcpServer      TcpServer;
 
     // logging
     CServerLogging Logging;
