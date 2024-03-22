@@ -389,6 +389,7 @@ HEADERS += src/buffer.h \
     src/serverlogging.h \
     src/settings.h \
     src/socket.h \
+    src/tcpserver.h \
     src/util.h \
     src/recorder/jamrecorder.h \
     src/recorder/creaperproject.h \
@@ -497,6 +498,7 @@ SOURCES += src/buffer.cpp \
     src/settings.cpp \
     src/signalhandler.cpp \
     src/socket.cpp \
+    src/tcpserver.cpp \
     src/util.cpp \
     src/recorder/jamrecorder.cpp \
     src/recorder/creaperproject.cpp \
