@@ -50,6 +50,7 @@ CServer::CServer ( const int          iNewMaxNumChan,
     iMaxNumChannels ( iNewMaxNumChan ),
     iCurNumChannels ( 0 ),
     Socket ( this, iPortNumber, iQosNumber, strServerBindIP, bNEnableIPv6 ),
+    TcpServer ( this, strServerBindIP, iPortNumber, bNEnableIPv6 ),
     Logging(),
     iFrameCount ( 0 ),
     bWriteStatusHTMLFile ( false ),
@@ -304,6 +305,7 @@ CServer::CServer ( const int          iNewMaxNumChan,
     // start the socket (it is important to start the socket after all
     // initializations and connections)
     Socket.Start();
+    TcpServer.Start();
 }
 
 template<unsigned int slotId>
