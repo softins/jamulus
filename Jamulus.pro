@@ -1,5 +1,9 @@
 VERSION = 3.10.0dev
 
+lessThan(QT_MAJOR_VERSION, 5) | equals(QT_MAJOR_VERSION, 5) : lessThan(QT_MINOR_VERSION, 12) {
+    error(Jamulus requires at least Qt5.12)
+}
+
 # use target name which does not use a capital letter at the beginning
 contains(CONFIG, "noupcasename") {
     message(The target name is jamulus instead of Jamulus.)
