@@ -59,6 +59,8 @@ TRANSLATIONS = src/translation/translation_de_DE.ts \
     src/translation/translation_sv_SE.ts \
     src/translation/translation_zh_CN.ts
 
+QMAKE_CLEAN += src/translation/*.qm
+
 INCLUDEPATH += src
 
 INCLUDEPATH_OPUS = libs/opus/include \
@@ -702,19 +704,6 @@ DISTFILES += ChangeLog \
     src/res/io.jamulus.jamulus.png \
     src/res/io.jamulus.jamulus.svg \
     src/res/io.jamulus.jamulusserver.svg \
-    src/translation/translation_de_DE.qm \
-    src/translation/translation_fr_FR.qm \
-    src/translation/translation_ko_KR.qm \
-    src/translation/translation_pt_PT.qm \
-    src/translation/translation_pt_BR.qm \
-    src/translation/translation_es_ES.qm \
-    src/translation/translation_nb_NO.qm \
-    src/translation/translation_nl_NL.qm \
-    src/translation/translation_pl_PL.qm \
-    src/translation/translation_it_IT.qm \
-    src/translation/translation_sv_SE.qm \
-    src/translation/translation_sk_SK.qm \
-    src/translation/translation_zh_CN.qm \
     src/res/CLEDBlack.png \
     src/res/CLEDBlackSmall.png \
     src/res/CLEDDisabledSmall.png \
