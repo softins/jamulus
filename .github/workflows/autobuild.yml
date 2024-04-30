@@ -314,7 +314,7 @@ jobs:
       - name:                       Checkout code
         uses:                       actions/checkout@v4
         with:
-          submodules:               true
+          submodules:               ${{ matrix.config.target_os == 'android' }}
           fetch-depth:              ${{ matrix.config.checkout_fetch_depth || '1' }}
 
       - name:                       Cache Mac dependencies
