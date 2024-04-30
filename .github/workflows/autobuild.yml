@@ -371,6 +371,7 @@ jobs:
           KEYCHAIN_PASSWORD:        ${{ secrets.KEYCHAIN_PASSWORD }}
           MACOS_CA_PUBLICKEY:       ${{ secrets.MACOS_CA_PUBKEY }}
       - name:                       Post-Build for ${{ matrix.config.config_name }}
+        if:                         success() || failure()
         id:                         get-artifacts
         run:                        ${{ matrix.config.base_command }} get-artifacts
         env:
