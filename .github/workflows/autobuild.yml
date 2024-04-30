@@ -390,7 +390,11 @@ jobs:
         uses:                       actions/upload-artifact@v4
         with:
           name:                     ${{ matrix.config.build_name }}-tree
-          path:                     .
+          path:                     |
+                                      .
+                                      !.git
+                                      !**/*.o
+                                      !**/*.so
           retention-days:           5
 
       - name:                       Upload Artifact 1 to Job
