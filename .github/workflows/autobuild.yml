@@ -194,6 +194,7 @@ jobs:
         # the contents of this.
         config:
           - config_name:            Android .apk (artifact+codeQL)
+            build_name:             android
             target_os:              android
             building_on_os:         ubuntu-20.04
             base_command:           ./.github/autobuild/android.sh
@@ -203,6 +204,7 @@ jobs:
             checkout_fetch_depth:   '0'
 
           - config_name:            Linux .deb amd64 (artifacts+codeQL)
+            build_name:             linux-amd64
             target_os:              linux
             building_on_os:         ubuntu-22.04
             building_container:     ubuntu:20.04
@@ -211,6 +213,7 @@ jobs:
             is_main_build_target:   true
 
           - config_name:            Linux .deb armhf (artifacts)
+            build_name:             linux-armhf
             target_os:              linux
             building_on_os:         ubuntu-22.04
             building_container:     ubuntu:20.04
@@ -218,6 +221,7 @@ jobs:
             run_codeql:             false
 
           - config_name:            Linux .deb arm64 (artifacts)
+            build_name:             linux-arm64
             target_os:              linux
             building_on_os:         ubuntu-22.04
             building_container:     ubuntu:20.04
@@ -225,6 +229,7 @@ jobs:
             run_codeql:             false
 
           - config_name:            MacOS (artifacts)
+            build_name:             macos
             target_os:              macos
             building_on_os:         macos-12
             base_command:           QT_VERSION=6.6.3 SIGN_IF_POSSIBLE=1 TARGET_ARCHS="x86_64 arm64" ./.github/autobuild/mac.sh
@@ -236,6 +241,7 @@ jobs:
 
           # Reminder: If Legacy is removed, be sure to add a dedicated job for CodeQL again.
           - config_name:            MacOS Legacy (artifacts+CodeQL)
+            build_name:             macos-legacy
             target_os:              macos
             building_on_os:         macos-12
             base_command:           QT_VERSION=5.15.2 SIGN_IF_POSSIBLE=0 ARTIFACT_SUFFIX=_legacy ./.github/autobuild/mac.sh
@@ -249,6 +255,7 @@ jobs:
             is_main_build_target:   true
 
           - config_name:            iOS (artifacts)
+            build_name:             ios
             target_os:              ios
             building_on_os:         macos-11
             base_command:           QT_VERSION=5.15.2 ./.github/autobuild/ios.sh
@@ -261,6 +268,7 @@ jobs:
             xcode_version:          12.5.1
 
           - config_name:            Windows (artifact+codeQL)
+            build_name:             windows
             target_os:              windows
             building_on_os:         windows-2022
             base_command:           powershell .\.github\autobuild\windows.ps1 -Stage
@@ -268,6 +276,7 @@ jobs:
             is_main_build_target:   true
 
           - config_name:            Windows JACK (artifact)
+            build_name:             windows-jack
             target_os:              windows
             building_on_os:         windows-2022
             base_command:           powershell .\.github\autobuild\windows.ps1 -BuildOption jackonwindows -Stage
@@ -376,6 +385,18 @@ jobs:
         run:                        ${{ matrix.config.base_command }} get-artifacts
         env:
           JAMULUS_BUILD_VERSION:    ${{ needs.create_release.outputs.build_version }}
+
+      - name:                       Upload Build Tree
+        if:                         success() || failure()
+        uses:                       actions/upload-artifact@v4
+        with:
+          name:                     ${{ matrix.config.build_name }}-tree
+          path:                     |
+                                      .
+                                      !.git
+                                      !**/*.o
+                                      !**/*.so
+          retention-days:           5
 
       - name:                       Upload Artifact 1 to Job
         # Every build job has at least one artifact. Therefore, no `if` here.
