@@ -268,7 +268,7 @@ Function Build-App
 
     Invoke-Native-Command -Command "$Env:QtQmakePath" `
         -Arguments ("$RootPath\$AppName.pro", "CONFIG+=$BuildArch $BuildOption", `
-        "CONFIG-=debug", "-o", "$BuildPath\Makefile")
+        "CONFIG-=debug debug_and_release", "-o", "$BuildPath\Makefile")
 
     Set-Location -Path $BuildPath
     if (Get-Command "jom.exe" -ErrorAction SilentlyContinue)
