@@ -261,33 +261,31 @@ Function Build-App
 {
     param(
         [Parameter(Mandatory=$true)]
-        [string] $BuildConfig,
-        [Parameter(Mandatory=$true)]
         [string] $BuildArch
     )
 
     Invoke-Native-Command -Command "$Env:QtQmakePath" `
         -Arguments ("$RootPath\$AppName.pro", `
         "CONFIG-=debug debug_and_release", `
-        "CONFIG+=$BuildArch $BuildConfig $BuildOption", `
+        "CONFIG+=release $BuildArch $BuildOption", `
         "-o", "$BuildPath\Makefile")
 
     Set-Location -Path $BuildPath
     if (Get-Command "jom.exe" -ErrorAction SilentlyContinue)
     {
         echo "Building with jom /J ${Env:NUMBER_OF_PROCESSORS}"
-        Invoke-Native-Command -Command "jom" -Arguments ("/J", "${Env:NUMBER_OF_PROCESSORS}", "$BuildConfig")
+        Invoke-Native-Command -Command "jom" -Arguments ("/J", "${Env:NUMBER_OF_PROCESSORS}")
     }
     else
     {
         echo "Building with nmake (install Qt jom if you want parallel builds)"
-        Invoke-Native-Command -Command "nmake" -Arguments ("$BuildConfig")
+        Invoke-Native-Command -Command "nmake"
     }
     Invoke-Native-Command -Command "$Env:QtWinDeployPath" `
-        -Arguments ("--$BuildConfig", "--compiler-runtime", "--dir=$DeployPath\$BuildArch",
-        "$BuildPath\$BuildConfig\$AppName.exe")
+        -Arguments ("--release", "--compiler-runtime", "--dir=$DeployPath\$BuildArch",
+        "$BuildPath\$AppName.exe")
 
-    Move-Item -Path "$BuildPath\$BuildConfig\$AppName.exe" -Destination "$DeployPath\$BuildArch" -Force
+    Move-Item -Path "$BuildPath\$AppName.exe" -Destination "$DeployPath\$BuildArch" -Force
     Invoke-Native-Command -Command "nmake" -Arguments ("clean")
     Set-Location -Path $RootPath
 }
@@ -308,7 +306,7 @@ function Build-App-Variants
             Initialize-Build-Environment -BuildArch $_
             Initialize-Qt-Build-Environment -QtInstallPath $QtInstallPath64 -QtCompile $QtCompile64
         }
-        Build-App -BuildConfig "release" -BuildArch $_
+        Build-App -BuildArch $_
         $OriginalEnv | % { Set-Item "Env:$($_.Name)" $_.Value }
     }
 }
