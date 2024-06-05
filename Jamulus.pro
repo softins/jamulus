@@ -6,6 +6,13 @@ lessThan(QT_MAJOR_VERSION, 5) | equals(QT_MAJOR_VERSION, 5) : lessThan(QT_MINOR_
 
 message("CONFIG set to \"$$CONFIG\" on entry")
 
+# why is debug_and_release the default on Windows? It breaks embed_translations.
+win32 {
+    CONFIG -= debug_and_release
+
+    message("CONFIG set to \"$$CONFIG\" now for Windows")
+}
+
 # use target name which does not use a capital letter at the beginning
 contains(CONFIG, "noupcasename") {
     message(The target name is jamulus instead of Jamulus.)
