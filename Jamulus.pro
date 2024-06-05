@@ -4,6 +4,8 @@ lessThan(QT_MAJOR_VERSION, 5) | equals(QT_MAJOR_VERSION, 5) : lessThan(QT_MINOR_
     error(Jamulus requires at least Qt5.12)
 }
 
+message("CONFIG set to \"$$CONFIG\" on entry")
+
 # use target name which does not use a capital letter at the beginning
 contains(CONFIG, "noupcasename") {
     message(The target name is jamulus instead of Jamulus.)
