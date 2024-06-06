@@ -2,6 +2,7 @@
 Jamulus
 Jamulus.ini
 Makefile
+Makefile.*
 *.pro.user*
 **.cppe
 **.he
