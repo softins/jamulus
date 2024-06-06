@@ -362,7 +362,8 @@ win32 {
     }
 }
 
-RCC_DIR = src/res
+# Do not set RCC_DIR when using embed_translations.
+# It doesn't work with multiple targets or architectures.
 RESOURCES += src/resources.qrc
 
 FORMS_GUI = src/aboutdlgbase.ui \
