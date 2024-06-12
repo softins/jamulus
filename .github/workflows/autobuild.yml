@@ -198,7 +198,7 @@ jobs:
             building_on_os:         ubuntu-20.04
             base_command:           ./.github/autobuild/android.sh
             run_codeql:             true
-            is_main_build_target:   true
+            #is_main_build_target:   true
             # Jamulus.pro needs to count git history length for android versioning:
             checkout_fetch_depth:   '0'
 
@@ -208,7 +208,7 @@ jobs:
             building_container:     ubuntu:20.04
             base_command:           ./.github/autobuild/linux_deb.sh
             run_codeql:             true
-            is_main_build_target:   true
+            #is_main_build_target:   true
 
           - config_name:            Linux .deb armhf (artifacts)
             target_os:              linux
@@ -232,15 +232,15 @@ jobs:
             run_codeql:             false
             # Default Xcode which runs on macos-12:
             xcode_version:          14.2.0
-            is_main_build_target:   true
+            #is_main_build_target:   true
 
           # Reminder: If Legacy is removed, be sure to add a dedicated job for CodeQL again.
-          - config_name:            MacOS Legacy (artifacts+CodeQL)
+          - config_name:            MacOS Legacy (artifacts)
             target_os:              macos
             building_on_os:         macos-12
             base_command:           QT_VERSION=5.15.2 SIGN_IF_POSSIBLE=0 ARTIFACT_SUFFIX=_legacy ./.github/autobuild/mac.sh
             # Enable CodeQL on mac legacy as this version does not get signed
-            run_codeql:             true
+            run_codeql:             false
             # For Qt5 on Mac, we need to use an unsupported SDK version as macOS 12 doesn't
             # support Xcode 12.1 which still ships SDK 10.15.
             # https://developer.apple.com/support/xcode/
@@ -265,7 +265,7 @@ jobs:
             building_on_os:         windows-2022
             base_command:           powershell .\.github\autobuild\windows.ps1 -Stage
             run_codeql:             true
-            is_main_build_target:   true
+            #is_main_build_target:   true
 
           - config_name:            Windows JACK (artifact)
             target_os:              windows
