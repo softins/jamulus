@@ -1050,14 +1050,14 @@
                <item>
                 <widget class="QPushButton" name="butDeleteCustomDirectory">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Maximum" vsizetype="Ignored">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Ignored">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>24</width>
+                   <width>40</width>
                    <height>16777215</height>
                   </size>
                  </property>
