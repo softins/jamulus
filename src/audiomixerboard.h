@@ -56,7 +56,7 @@ public:
     int     GetReceivedInstrument() { return cReceivedChanInfo.iInstrument; }
     QString GetReceivedCity() { return cReceivedChanInfo.strCity; }
     int     GetReceivedChID() { return cReceivedChanInfo.iChanID; }
-    void    SetChannelInfos ( const CChannelInfo& cChanInfo );
+    void    SetChannelInfos ( const CChannelInfo& cChanInfo, int iMIDIID );
     void    Show() { pFrame->show(); }
     void    Hide() { pFrame->hide(); }
     bool    IsVisible() { return !pFrame->isHidden(); }
@@ -120,6 +120,7 @@ protected:
     QLabel*    plblCountryFlag;
 
     CChannelInfo cReceivedChanInfo;
+    int          cReceivedMIDIID;
 
     bool        bOtherChannelIsSolo;
     bool        bIsMyOwnFader;
@@ -230,6 +231,8 @@ public:
     void MuteMyChannel();
 
     void SetMIDICtrlUsed ( const bool bMIDICtrlUsed );
+    int  ChanToMIDI ( const int iChanID );
+    int  MIDIToChan ( const int iMIDIID );
 
 protected:
     class CMixerBoardScrollArea : public QScrollArea

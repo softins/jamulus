@@ -260,7 +260,7 @@ void CChannelFader::SetGUIDesign ( const EGUIDesign eNewDesign )
     UpdateGroupIDDependencies();
 
     // the instrument picture might need scaling after a style change
-    SetChannelInfos ( cReceivedChanInfo );
+    SetChannelInfos ( cReceivedChanInfo, cReceivedMIDIID );
 }
 
 void CChannelFader::SetMeterStyle ( const EMeterStyle eNewMeterStyle )
@@ -436,6 +436,7 @@ void CChannelFader::Reset()
     plblCountryFlag->setVisible ( false );
     plblCountryFlag->setToolTip ( "" );
     cReceivedChanInfo = CChannelInfo();
+    cReceivedMIDIID   = INVALID_INDEX;
     SetupFaderTag ( SL_NOT_SET );
 
     // set a defined tool tip time out
@@ -666,10 +667,11 @@ void CChannelFader::UpdateSoloState ( const bool bNewOtherSoloState )
 
 void CChannelFader::SetChannelLevel ( const uint16_t iLevel ) { plbrChannelLevel->SetValue ( iLevel ); }
 
-void CChannelFader::SetChannelInfos ( const CChannelInfo& cChanInfo )
+void CChannelFader::SetChannelInfos ( const CChannelInfo& cChanInfo, int iMIDIID )
 {
     // store received channel info
     cReceivedChanInfo = cChanInfo;
+    cReceivedMIDIID   = iMIDIID;
 
     // init properties for the tool tip
     int              iTTInstrument = CInstPictures::GetNotUsedInstrument();
@@ -682,7 +684,7 @@ void CChannelFader::SetChannelInfos ( const CChannelInfo& cChanInfo )
     // show channel numbers if --ctrlmidich is used (#241, #95)
     if ( bMIDICtrlUsed )
     {
-        strModText.prepend ( QString().setNum ( cChanInfo.iChanID ) + ":" );
+        strModText.prepend ( QString().setNum ( iMIDIID ) + ":" );
     }
 
     QTextBoundaryFinder tbfName ( QTextBoundaryFinder::Grapheme, cChanInfo.strName );
@@ -1322,7 +1324,7 @@ void CAudioMixerBoard::ApplyNewConClientList ( CVector<CChannelInfo>& vecChanInf
             }
 
             // set the channel infos
-            vecpChanFader[iChanID]->SetChannelInfos ( vecChanInfo[idxVecpChan] );
+            vecpChanFader[iChanID]->SetChannelInfos ( vecChanInfo[idxVecpChan], ChanToMIDI ( iChanID ) );
         }
 
         // update the solo states since if any channel was on solo and a new client
@@ -1555,6 +1557,37 @@ void CAudioMixerBoard::AutoAdjustAllFaderLevels()
             }
         }
     }
+}
+
+// Ensure user's own channel is always given MIDI offset 0, so it is the first physical fader
+// All channels with a client ID less than user's own will use ID+1 as their MIDI offset
+
+int CAudioMixerBoard::ChanToMIDI ( const int iChanID )
+{
+    if ( iMyChannelID == INVALID_INDEX )
+        return iChanID;
+
+    if ( iChanID == iMyChannelID )
+        return 0;
+
+    if ( iChanID < iMyChannelID )
+        return iChanID + 1;
+
+    return iChanID;
+}
+
+int CAudioMixerBoard::MIDIToChan ( const int iMIDIID )
+{
+    if ( iMyChannelID == INVALID_INDEX )
+        return iMIDIID;
+
+    if ( iMIDIID == 0 )
+        return iMyChannelID;
+
+    if ( iMIDIID <= iMyChannelID )
+        return iMIDIID - 1;
+
+    return iMIDIID;
 }
 
 void CAudioMixerBoard::SetMIDICtrlUsed ( const bool bMIDICtrlUsed )
