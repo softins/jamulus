@@ -398,10 +398,10 @@ protected slots:
     void OnCLPingWithNumClientsReceived ( CHostAddress InetAddr, int iMs, int iNumClients );
 
     void OnSndCrdReinitRequest ( int iSndCrdResetType );
-    void OnControllerInFaderLevel ( int iChannelIdx, int iValue );
-    void OnControllerInPanValue ( int iChannelIdx, int iValue );
-    void OnControllerInFaderIsSolo ( int iChannelIdx, bool bIsSolo );
-    void OnControllerInFaderIsMute ( int iChannelIdx, bool bIsMute );
+    void OnControllerInFaderLevel ( int iMIDIIdx, int iValue );
+    void OnControllerInPanValue ( int iMIDIIdx, int iValue );
+    void OnControllerInFaderIsSolo ( int iMIDIIdx, bool bIsSolo );
+    void OnControllerInFaderIsMute ( int iMIDIIdx, bool bIsMute );
     void OnControllerInMuteMyself ( bool bMute );
     void OnClientIDReceived ( int iChanID );
     void OnConClientListMesReceived ( CVector<CChannelInfo> vecChanInfo );
@@ -430,9 +430,9 @@ signals:
 
     void Disconnected();
     void SoundDeviceChanged ( QString strError );
-    void ControllerInFaderLevel ( int iChannelIdx, int iValue );
-    void ControllerInPanValue ( int iChannelIdx, int iValue );
-    void ControllerInFaderIsSolo ( int iChannelIdx, bool bIsSolo );
-    void ControllerInFaderIsMute ( int iChannelIdx, bool bIsMute );
+    void ControllerInFaderLevel ( int iMIDIIdx, int iValue );
+    void ControllerInPanValue ( int iMIDIIdx, int iValue );
+    void ControllerInFaderIsSolo ( int iMIDIIdx, bool bIsSolo );
+    void ControllerInFaderIsMute ( int iMIDIIdx, bool bIsMute );
     void ControllerInMuteMyself ( bool bMute );
 };

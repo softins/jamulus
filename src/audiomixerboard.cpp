@@ -1343,8 +1343,10 @@ void CAudioMixerBoard::ApplyNewConClientList ( CVector<CChannelInfo>& vecChanInf
     emit NumClientsChanged ( static_cast<int> ( iNumConnectedClients ) );
 }
 
-void CAudioMixerBoard::SetFaderLevel ( const int iChannelIdx, const int iValue )
+void CAudioMixerBoard::SetFaderLevel ( const int iMIDIIdx, const int iValue )
 {
+    const int iChannelIdx = MIDIToChan ( iMIDIIdx );
+
     // only apply new fader level if channel index is valid and the fader is visible
     if ( ( iChannelIdx >= 0 ) && ( iChannelIdx < MAX_NUM_CHANNELS ) )
     {
@@ -1355,8 +1357,10 @@ void CAudioMixerBoard::SetFaderLevel ( const int iChannelIdx, const int iValue )
     }
 }
 
-void CAudioMixerBoard::SetPanValue ( const int iChannelIdx, const int iValue )
+void CAudioMixerBoard::SetPanValue ( const int iMIDIIdx, const int iValue )
 {
+    const int iChannelIdx = MIDIToChan ( iMIDIIdx );
+
     // only apply new pan value if channel index is valid and the panner is visible
     if ( ( iChannelIdx >= 0 ) && ( iChannelIdx < MAX_NUM_CHANNELS ) && bDisplayPans )
     {
@@ -1367,8 +1371,10 @@ void CAudioMixerBoard::SetPanValue ( const int iChannelIdx, const int iValue )
     }
 }
 
-void CAudioMixerBoard::SetFaderIsSolo ( const int iChannelIdx, const bool bIsSolo )
+void CAudioMixerBoard::SetFaderIsSolo ( const int iMIDIIdx, const bool bIsSolo )
 {
+    const int iChannelIdx = MIDIToChan ( iMIDIIdx );
+
     // only apply solo if channel index is valid and the fader is visible
     if ( ( iChannelIdx >= 0 ) && ( iChannelIdx < MAX_NUM_CHANNELS ) )
 
@@ -1380,8 +1386,10 @@ void CAudioMixerBoard::SetFaderIsSolo ( const int iChannelIdx, const bool bIsSol
     }
 }
 
-void CAudioMixerBoard::SetFaderIsMute ( const int iChannelIdx, const bool bIsMute )
+void CAudioMixerBoard::SetFaderIsMute ( const int iMIDIIdx, const bool bIsMute )
 {
+    const int iChannelIdx = MIDIToChan ( iMIDIIdx );
+
     // only apply mute if channel index is valid and the fader is visible
     if ( ( iChannelIdx >= 0 ) && ( iChannelIdx < MAX_NUM_CHANNELS ) )
     {

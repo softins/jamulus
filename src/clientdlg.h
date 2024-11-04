@@ -139,13 +139,13 @@ public slots:
     void OnPingTimeResult ( int iPingTime );
     void OnCLPingTimeWithNumClientsReceived ( CHostAddress InetAddr, int iPingTime, int iNumClients );
 
-    void OnControllerInFaderLevel ( const int iChannelIdx, const int iValue ) { MainMixerBoard->SetFaderLevel ( iChannelIdx, iValue ); }
+    void OnControllerInFaderLevel ( const int iMIDIIdx, const int iValue ) { MainMixerBoard->SetFaderLevel ( iMIDIIdx, iValue ); }
 
-    void OnControllerInPanValue ( const int iChannelIdx, const int iValue ) { MainMixerBoard->SetPanValue ( iChannelIdx, iValue ); }
+    void OnControllerInPanValue ( const int iMIDIIdx, const int iValue ) { MainMixerBoard->SetPanValue ( iMIDIIdx, iValue ); }
 
-    void OnControllerInFaderIsSolo ( const int iChannelIdx, const bool bIsSolo ) { MainMixerBoard->SetFaderIsSolo ( iChannelIdx, bIsSolo ); }
+    void OnControllerInFaderIsSolo ( const int iMIDIIdx, const bool bIsSolo ) { MainMixerBoard->SetFaderIsSolo ( iMIDIIdx, bIsSolo ); }
 
-    void OnControllerInFaderIsMute ( const int iChannelIdx, const bool bIsMute ) { MainMixerBoard->SetFaderIsMute ( iChannelIdx, bIsMute ); }
+    void OnControllerInFaderIsMute ( const int iMIDIIdx, const bool bIsMute ) { MainMixerBoard->SetFaderIsMute ( iMIDIIdx, bIsMute ); }
 
     void OnControllerInMuteMyself ( const bool bMute ) { chbLocalMute->setChecked ( bMute ); }
 

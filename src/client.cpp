@@ -789,7 +789,7 @@ void CClient::OnHandledSignal ( int sigNum )
 #endif
 }
 
-void CClient::OnControllerInFaderLevel ( int iChannelIdx, int iValue )
+void CClient::OnControllerInFaderLevel ( int iMIDIIdx, int iValue )
 {
     // in case of a headless client the faders cannot be moved so we need
     // to send the controller information directly to the server
@@ -801,10 +801,10 @@ void CClient::OnControllerInFaderLevel ( int iChannelIdx, int iValue )
     }
 #endif
 
-    emit ControllerInFaderLevel ( iChannelIdx, iValue );
+    emit ControllerInFaderLevel ( iMIDIIdx, iValue );
 }
 
-void CClient::OnControllerInPanValue ( int iChannelIdx, int iValue )
+void CClient::OnControllerInPanValue ( int iMIDIIdx, int iValue )
 {
     // in case of a headless client the panners cannot be moved so we need
     // to send the controller information directly to the server
@@ -813,10 +813,10 @@ void CClient::OnControllerInPanValue ( int iChannelIdx, int iValue )
     SetRemoteChanPan ( iChannelIdx, static_cast<float> ( iValue ) / AUD_MIX_PAN_MAX );
 #endif
 
-    emit ControllerInPanValue ( iChannelIdx, iValue );
+    emit ControllerInPanValue ( iMIDIIdx, iValue );
 }
 
-void CClient::OnControllerInFaderIsSolo ( int iChannelIdx, bool bIsSolo )
+void CClient::OnControllerInFaderIsSolo ( int iMIDIIdx, bool bIsSolo )
 {
     // in case of a headless client the buttons are not displayed so we need
     // to send the controller information directly to the server
@@ -824,10 +824,10 @@ void CClient::OnControllerInFaderIsSolo ( int iChannelIdx, bool bIsSolo )
     // FIXME: no idea what to do here.
 #endif
 
-    emit ControllerInFaderIsSolo ( iChannelIdx, bIsSolo );
+    emit ControllerInFaderIsSolo ( iMIDIIdx, bIsSolo );
 }
 
-void CClient::OnControllerInFaderIsMute ( int iChannelIdx, bool bIsMute )
+void CClient::OnControllerInFaderIsMute ( int iMIDIIdx, bool bIsMute )
 {
     // in case of a headless client the buttons are not displayed so we need
     // to send the controller information directly to the server
@@ -835,7 +835,7 @@ void CClient::OnControllerInFaderIsMute ( int iChannelIdx, bool bIsMute )
     // FIXME: no idea what to do here.
 #endif
 
-    emit ControllerInFaderIsMute ( iChannelIdx, bIsMute );
+    emit ControllerInFaderIsMute ( iMIDIIdx, bIsMute );
 }
 
 void CClient::OnControllerInMuteMyself ( bool bMute )
