@@ -484,6 +484,12 @@ CONNECTION LESS MESSAGES
 
     note: does not have any data -> n = 0
 
+
+
+- PROTMESSID_CLM_TCP_SUPPORTED: TCP supported message
+
+    note: does not have any data -> n = 0
+
 */
 
 #include "protocol.h"
@@ -985,6 +991,10 @@ void CProtocol::ParseConnectionLessMessageBody ( const CVector<uint8_t>& vecbyMe
 
     case PROTMESSID_CLM_REQ_WELCOME_MESSAGE:
         EvaluateCLReqWelcomeMessageMes ( InetAddr );
+        break;
+
+    case PROTMESSID_CLM_TCP_SUPPORTED:
+        EvaluateCLTcpSupportedMes ( InetAddr );
         break;
     }
 }
@@ -2704,6 +2714,19 @@ void CProtocol::CreateCLWelcomeMessageMes ( const CHostAddress& InetAddr, const 
     PutStringUTF8OnStream ( vecData, iPos, strUTF8WelcomeMessage );
 
     CreateAndImmSendConLessMessage ( PROTMESSID_CLM_WELCOME_MESSAGE, vecData, InetAddr );
+}
+
+void CProtocol::CreateCLTcpSupportedMes ( const CHostAddress& InetAddr )
+{
+    CreateAndImmSendConLessMessage ( PROTMESSID_CLM_TCP_SUPPORTED, CVector<uint8_t> ( 0 ), InetAddr );
+}
+
+bool CProtocol::EvaluateCLTcpSupportedMes ( const CHostAddress& InetAddr )
+{
+    // invoke message action
+    emit CLTcpSupported ( InetAddr );
+
+    return false; // no error
 }
 
 /******************************************************************************\

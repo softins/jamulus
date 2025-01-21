@@ -111,6 +111,7 @@
 #define PROTMESSID_CLM_REQ_SERVER_FEATURES    1020 // request server features
 #define PROTMESSID_CLM_WELCOME_MESSAGE        1021 // server welcome message
 #define PROTMESSID_CLM_REQ_WELCOME_MESSAGE    1022 // request server welcome message
+#define PROTMESSID_CLM_TCP_SUPPORTED          1019 // TCP is supported
 
 // special IDs
 #define PROTMESSID_SPECIAL_SPLIT_MESSAGE 2001 // a container for split messages
@@ -184,6 +185,7 @@ public:
     void CreateCLRegisterServerResp ( const CHostAddress& InetAddr, const ESvrRegResult eResult );
     void CreateCLServerFeaturesMes ( const CHostAddress& InetAddr, const uint32_t iResult );
     void CreateCLWelcomeMessageMes ( const CHostAddress& InetAddr, const QString strWelcomeMessage );
+    void CreateCLTcpSupportedMes ( const CHostAddress& InetAddr );
 
     static int GetBodyLength ( const CVector<uint8_t>& vecbyData );
 
@@ -321,6 +323,7 @@ protected:
     bool EvaluateCLRegisterServerResp ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
     bool EvaluateCLReqServerFeaturesMes ( const CHostAddress& InetAddr );
     bool EvaluateCLReqWelcomeMessageMes ( const CHostAddress& InetAddr );
+    bool EvaluateCLTcpSupportedMes ( const CHostAddress& InetAddr );
 
     int iOldRecID;
     int iOldRecCnt;
@@ -390,4 +393,5 @@ signals:
     void CLRegisterServerResp ( CHostAddress InetAddr, ESvrRegResult eStatus );
     void CLReqServerFeatures ( CHostAddress InetAddr );
     void CLReqWelcomeMessage ( CHostAddress InetAddr );
+    void CLTcpSupported ( CHostAddress InetAddr );
 };
