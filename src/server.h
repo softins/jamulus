@@ -126,6 +126,7 @@ public:
               const bool         bDisableRecording,
               const bool         bNDelayPan,
               const bool         bNDisableIPv6,
+              const bool         bNEnableTcp,
               const ELicenceType eNLicenceType );
 
     virtual ~CServer();
@@ -314,6 +315,9 @@ protected:
 
     // for delay panning
     bool bDelayPan;
+
+    // enable TCP Server
+    bool bEnableTcp;
 
     // messaging
     QString      strWelcomeMessage;
