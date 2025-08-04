@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu -o pipefail
+set -xeu -o pipefail
 
 # Dependency versions
 CREATEDMG_VERSION_TAG="v1.2.2"

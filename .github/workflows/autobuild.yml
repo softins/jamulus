@@ -198,7 +198,7 @@ jobs:
             building_on_os:         ubuntu-22.04
             base_command:           ./.github/autobuild/android.sh
             run_codeql:             true
-            is_main_build_target:   true
+	    #is_main_build_target:   true
             # Jamulus.pro needs to count git history length for android versioning:
             checkout_fetch_depth:   '0'
 
@@ -208,7 +208,7 @@ jobs:
             building_container:     ubuntu:20.04
             base_command:           ./.github/autobuild/linux_deb.sh
             run_codeql:             true
-            is_main_build_target:   true
+	    #is_main_build_target:   true
 
           - config_name:            Linux .deb armhf (artifacts)
             target_os:              linux
@@ -263,7 +263,7 @@ jobs:
             building_on_os:         windows-2022
             base_command:           powershell .\.github\autobuild\windows.ps1 -Stage
             run_codeql:             true
-            is_main_build_target:   true
+	    #is_main_build_target:   true
 
           - config_name:            Windows JACK (artifact)
             target_os:              windows
