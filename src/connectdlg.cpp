@@ -146,6 +146,12 @@ CConnectDlg::CConnectDlg ( CClientSettings* pNSetP, const bool bNewShowCompleteR
     // per default the root shall not be decorated (to save space)
     lvwServers->setRootIsDecorated ( false );
 
+    // lambda for mapping a version number to a sortable
+    auto versionMap = [] ( const QString& t ) { return semVerToSortableWithSuffixSequence ( t ); };
+
+    // set mapping for the version column
+    lvwServers->setColumnMapper ( LVC_VERSION, versionMap );
+
     // make sure the connect button has the focus
     butConnect->setFocus();
 
