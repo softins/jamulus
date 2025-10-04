@@ -59,7 +59,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QTreeWidget" name="lvwServers">
+    <widget class="MappedTreeWidget" name="lvwServers">
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
      </property>
@@ -157,4 +157,11 @@
   <include location="resources.qrc"/>
  </resources>
  <connections/>
+ <customwidgets>
+  <customwidget>
+   <class>MappedTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>mappedtreewidget.h</header>
+  </customwidget>
+ </customwidgets>
 </ui>

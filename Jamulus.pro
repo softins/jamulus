@@ -415,6 +415,7 @@ HEADERS_GUI = src/serverdlg.h
         src/chatdlg.h \
         src/clientsettingsdlg.h \
         src/connectdlg.h \
+        src/mappedtreewidget.h \
         src/clientdlg.h \
         src/levelmeter.h \
         src/analyzerconsole.h \
