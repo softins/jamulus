@@ -471,7 +471,10 @@ void CConnectDlg::SetServerList ( const CHostAddress& InetAddr, const CVector<CS
         {
             for ( int i = 0; i < lvwServers->columnCount(); i++ )
             {
-                lvwServers->setItemWidget ( pNewListViewItem, i, new QPushButton ( pNewListViewItem->text ( i ) ) );
+                QLabel* accessLabel = new QLabel( "" );
+                accessLabel->setAccessibleName ( pNewListViewItem->text ( i ) );
+
+                lvwServers->setItemWidget ( pNewListViewItem, i, accessLabel );
             }
         }
     }
@@ -916,11 +919,11 @@ void CConnectDlg::SetPingTimeAndNumClientsResult ( const CHostAddress& InetAddr,
         if ( bEnableAccessiblePushButtonUi )
         {
             // apply text to accessible ui
-            dynamic_cast<QPushButton*> ( lvwServers->itemWidget ( pCurListViewItem, LVC_PING ) )->setText ( pCurListViewItem->text ( LVC_PING ) );
-            dynamic_cast<QPushButton*> ( lvwServers->itemWidget ( pCurListViewItem, LVC_CLIENTS ) )
-                ->setText ( pCurListViewItem->text ( LVC_CLIENTS ) );
-            dynamic_cast<QPushButton*> ( lvwServers->itemWidget ( pCurListViewItem, LVC_VERSION ) )
-                ->setText ( pCurListViewItem->text ( LVC_VERSION ) );
+            dynamic_cast<QLabel*> ( lvwServers->itemWidget ( pCurListViewItem, LVC_PING ) )->setAccessibleName ( pCurListViewItem->text ( LVC_PING ) );
+            dynamic_cast<QLabel*> ( lvwServers->itemWidget ( pCurListViewItem, LVC_CLIENTS ) )
+                ->setAccessibleName ( pCurListViewItem->text ( LVC_CLIENTS ) );
+            dynamic_cast<QLabel*> ( lvwServers->itemWidget ( pCurListViewItem, LVC_VERSION ) )
+                ->setAccessibleName ( pCurListViewItem->text ( LVC_VERSION ) );
         }
 
         // check if the number of child list items matches the number of
