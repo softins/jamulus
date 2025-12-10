@@ -757,21 +757,32 @@ bool NetworkUtil::ParseNetworkAddressSrv ( QString strAddress, CHostAddress& Hos
         return false;
     }
 
-    QDnsLookup* dns = new QDnsLookup();
-    dns->setType ( QDnsLookup::SRV );
-    dns->setName ( QString ( "_jamulus._udp.%1" ).arg ( strAddress ) );
-    dns->lookup();
-    // QDnsLookup::lookup() works asynchronously. Therefore, wait for
-    // it to complete here by resuming the main loop here.
-    // This is not nice and blocks the UI, but is similar to what
-    // the regular resolve function does as well.
-    QTime dieTime = QTime::currentTime().addMSecs ( DNS_SRV_RESOLVE_TIMEOUT_MS );
-    while ( QTime::currentTime() < dieTime && !dns->isFinished() )
+    QDnsLookup dns ( QDnsLookup::SRV, QString ( "_jamulus._udp.%1" ).arg ( strAddress ) );
+    QEventLoop loop;
+    QTimer     timer;
+    bool       finished = false;
+
+    QObject::connect ( &dns, &QDnsLookup::finished, &loop, [&]() {
+        finished = true;
+        loop.quit();
+    } );
+
+    timer.setSingleShot ( true );
+    QObject::connect ( &timer, &QTimer::timeout, &loop, [&]() {
+        // timeout: finished remains false
+        loop.quit();
+    } );
+    timer.start ( DNS_SRV_RESOLVE_TIMEOUT_MS );
+
+    dns.lookup();
+    loop.exec(); // nested event loop
+
+    if ( !finished || dns.error() != QDnsLookup::NoError )
     {
-        QCoreApplication::processEvents ( QEventLoop::ExcludeUserInputEvents, 100 );
+        return false;
     }
-    QList<QDnsServiceRecord> records = dns->serviceRecords();
-    dns->deleteLater();
+
+    QList<QDnsServiceRecord> records = dns.serviceRecords();
     if ( records.length() != 1 )
     {
         return false;
