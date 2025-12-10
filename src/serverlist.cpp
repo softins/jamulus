@@ -981,12 +981,12 @@ void CServerListManager::SetRegistered ( const bool bIsRegister )
         QString ( "GetDirectoryAddress(%1, %2) returned %3" ).arg ( DirectoryType ).arg ( strDirectoryAddress ).arg ( strNetworkAddress ) );
 
 #ifndef CLIENT_NO_SRV_CONNECT
-    const bool bDirectoryAddressValid = NetworkUtil().ParseNetworkAddressWithSrvDiscovery ( strNetworkAddress, DirectoryAddress, false );
+    const bool bDirectoryAddressValid = NetworkUtil::ParseNetworkAddressWithSrvDiscovery ( strNetworkAddress, DirectoryAddress, false );
 
     qInfo() << qUtf8Printable ( QString ( "bDirectoryAddressValid = %1, bIsRegister = %2" ).arg ( bDirectoryAddressValid ).arg ( bIsRegister ) );
 
 #else
-    const bool bDirectoryAddressValid = NetworkUtil().ParseNetworkAddress ( strNetworkAddress, DirectoryAddress, false );
+    const bool bDirectoryAddressValid = NetworkUtil::ParseNetworkAddress ( strNetworkAddress, DirectoryAddress, false );
 #endif
 
     if ( bIsRegister )
