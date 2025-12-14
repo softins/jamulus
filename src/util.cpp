@@ -749,9 +749,12 @@ bool NetworkUtil::ParseNetworkAddressSrv ( QString strAddress, CHostAddress& Hos
     // init requested host address with invalid address first
     HostAddress = CHostAddress();
 
-    QRegularExpression plainHostRegex ( "^([^\\[:0-9.][^:]*)$" );
+    qInfo() << Q_FUNC_INFO << 1 << "thread" << QThread::currentThread() << "appThread" << qApp->thread();
+
+    static QRegularExpression plainHostRegex ( "^([^\\[:0-9.][^:]*)$" );
     if ( plainHostRegex.match ( strAddress ).capturedStart() != 0 )
     {
+        qInfo() << Q_FUNC_INFO << 1 << "not plain host, skipping SRV";
         // not a plain hostname? then don't attempt SRV lookup and fail
         // immediately.
         return false;
@@ -762,32 +765,54 @@ bool NetworkUtil::ParseNetworkAddressSrv ( QString strAddress, CHostAddress& Hos
     QTimer     timer;
     bool       finished = false;
 
-    QObject::connect ( &dns, &QDnsLookup::finished, &loop, [&]() {
+    qInfo() << Q_FUNC_INFO << 2;
+
+    QObject::connect ( &dns, &QDnsLookup::finished, &loop, [&finished, &loop]() {
         finished = true;
+        qInfo() << Q_FUNC_INFO << 1 << "finished signal";
         loop.quit();
+        qInfo() << Q_FUNC_INFO << 2 << "loop quit returned";
     } );
 
+    qInfo() << Q_FUNC_INFO << 3;
+
     timer.setSingleShot ( true );
-    QObject::connect ( &timer, &QTimer::timeout, &loop, [&]() {
+    QObject::connect ( &timer, &QTimer::timeout, &loop, [&loop]() {
         // timeout: finished remains false
+        qInfo() << Q_FUNC_INFO << 1 << "timeout signal";
         loop.quit();
+        qInfo() << Q_FUNC_INFO << 2 << "loop quit returned";
     } );
     timer.start ( DNS_SRV_RESOLVE_TIMEOUT_MS );
 
+    qInfo() << Q_FUNC_INFO << 4 << "timer started, starting lookup";
+
     dns.lookup();
+    qInfo() << Q_FUNC_INFO << 5 << "entering nested event loop"
+            << "timer active =" << timer.isActive() << "remaining =" << timer.remainingTime() << "thread =" << timer.thread();
+
     loop.exec(); // nested event loop
+
+    qInfo() << Q_FUNC_INFO << 6 << "event loop exited"
+            << "finished =" << finished << "dns.error =" << dns.error() << dns.errorString();
 
     if ( !finished || dns.error() != QDnsLookup::NoError )
     {
         return false;
     }
 
-    QList<QDnsServiceRecord> records = dns.serviceRecords();
+    const auto records = dns.serviceRecords();
+    qInfo() << Q_FUNC_INFO << 8;
+
     if ( records.length() != 1 )
     {
+        qInfo() << Q_FUNC_INFO << 9 << "unexpected record count" << records.length();
+
         return false;
     }
     QDnsServiceRecord record = records.first();
+    qInfo() << Q_FUNC_INFO << 10;
+
     if ( record.target() == "." || record.target() == "" )
     {
         // RFC2782 says that "." indicates that the service is not available.
@@ -797,6 +822,8 @@ bool NetworkUtil::ParseNetworkAddressSrv ( QString strAddress, CHostAddress& Hos
         // End processing here (= return true), but pass back an
         // invalid HostAddress to let the connect logic fail properly.
         HostAddress = CHostAddress ( QHostAddress ( "." ), 0 );
+        qInfo() << Q_FUNC_INFO << 11 << "SRV target '.', returning invalid host";
+
         return true;
     }
     qDebug() << qUtf8Printable (
@@ -813,11 +840,14 @@ bool NetworkUtil::ParseNetworkAddressSrv ( QString strAddress, CHostAddress& Hos
 
 bool NetworkUtil::ParseNetworkAddressWithSrvDiscovery ( QString strAddress, CHostAddress& HostAddress, bool bEnableIPv6 )
 {
+    qInfo() << Q_FUNC_INFO << 1;
     // Try SRV-based discovery first:
     if ( ParseNetworkAddressSrv ( strAddress, HostAddress, bEnableIPv6 ) )
     {
+        qInfo() << Q_FUNC_INFO << 2;
         return true;
     }
+    qInfo() << Q_FUNC_INFO << 3;
     // Try regular connect via plain IP or host name lookup (A/AAAA):
     return ParseNetworkAddress ( strAddress, HostAddress, bEnableIPv6 );
 }
