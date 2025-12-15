@@ -767,7 +767,7 @@ bool NetworkUtil::ParseNetworkAddressSrv ( QString strAddress, CHostAddress& Hos
 
     qInfo() << Q_FUNC_INFO << 2;
 
-    QObject::connect ( &dns, &QDnsLookup::finished, &loop, [&finished, &loop]() {
+    const auto conn_finished = QObject::connect ( &dns, &QDnsLookup::finished, &loop, [&finished, &loop]() {
         finished = true;
         qInfo() << Q_FUNC_INFO << 1 << "finished signal";
         loop.quit();
@@ -777,7 +777,7 @@ bool NetworkUtil::ParseNetworkAddressSrv ( QString strAddress, CHostAddress& Hos
     qInfo() << Q_FUNC_INFO << 3;
 
     timer.setSingleShot ( true );
-    QObject::connect ( &timer, &QTimer::timeout, &loop, [&loop]() {
+    const auto conn_timer = QObject::connect ( &timer, &QTimer::timeout, &loop, [&loop]() {
         // timeout: finished remains false
         qInfo() << Q_FUNC_INFO << 1 << "timeout signal";
         loop.quit();
@@ -795,6 +795,11 @@ bool NetworkUtil::ParseNetworkAddressSrv ( QString strAddress, CHostAddress& Hos
 
     qInfo() << Q_FUNC_INFO << 6 << "event loop exited"
             << "finished =" << finished << "dns.error =" << dns.error() << dns.errorString();
+
+    const bool discon_fin = QObject::disconnect ( conn_finished );
+    const bool discon_tim = QObject::disconnect ( conn_timer );
+
+    qInfo() << Q_FUNC_INFO << 7 << "signals disconnected: discon_fin =" << discon_fin << "discon_tim =" << discon_tim;
 
     if ( !finished || dns.error() != QDnsLookup::NoError )
     {
