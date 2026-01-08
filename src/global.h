@@ -238,7 +238,9 @@ LED bar:      lbr
 
 // time between server registration refreshes
 //#define SERVLIST_REGIST_INTERV_MINUTES 15 // minutes
-#define SERVLIST_REGIST_INTERV_MINUTES 1 // minutes for debugging
+//#define SERVLIST_REGIST_INTERV_MINUTES 1 // minutes for debugging
+#define SERVLIST_REGIST_INTERV_MINUTES 0.98 // minutes for debugging
+//#define SERVLIST_REGIST_INTERV_MINUTES 0.97 // minutes for debugging
 
 // defines the minimum time a server must run to be a permanent server
 #define SERVLIST_TIME_PERMSERV_MINUTES 2880 // minutes, 2880 = 60 min * 24 h * 2 d

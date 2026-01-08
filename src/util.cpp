@@ -760,7 +760,7 @@ bool NetworkUtil::ParseNetworkAddressSrv ( QString strAddress, CHostAddress& Hos
         return false;
     }
 
-    QDnsLookup dns ( QDnsLookup::SRV, QString ( "_jamulus._udp.%1" ).arg ( strAddress ) );
+    static QDnsLookup dns;
     QEventLoop loop;
     QTimer     timer;
     bool       finished = false;
@@ -785,7 +785,12 @@ bool NetworkUtil::ParseNetworkAddressSrv ( QString strAddress, CHostAddress& Hos
     } );
     timer.start ( DNS_SRV_RESOLVE_TIMEOUT_MS );
 
-    qInfo() << Q_FUNC_INFO << 4 << "timer started, starting lookup";
+    qInfo() << Q_FUNC_INFO << 3 << "timer started, setting lookup details";
+
+    dns.setType ( QDnsLookup::SRV );
+    dns.setName ( QString ( "_jamulus._udp.%1" ).arg ( strAddress ) );
+
+    qInfo() << Q_FUNC_INFO << 4 << "details set, starting lookup";
 
     dns.lookup();
     qInfo() << Q_FUNC_INFO << 5 << "entering nested event loop"
