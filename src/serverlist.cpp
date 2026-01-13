@@ -357,6 +357,8 @@ void CServerListManager::SetDirectoryAddress ( const QString sNDirectoryAddress 
     // sets the lock
     Unregister();
 
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
+
     QMutexLocker locker ( &Mutex );
 
     // now save the new name
@@ -366,8 +368,12 @@ void CServerListManager::SetDirectoryAddress ( const QString sNDirectoryAddress 
 
     locker.unlock();
 
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "Manually unlocked Mutex";
+
     // sets the lock
     Register();
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
 }
 
 void CServerListManager::SetDirectoryType ( const EDirectoryType eNCSAT )
@@ -381,6 +387,8 @@ void CServerListManager::SetDirectoryType ( const EDirectoryType eNCSAT )
     // sets the lock
     Unregister();
 
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
+
     QMutexLocker locker ( &Mutex );
 
     // now update the server type
@@ -390,8 +398,12 @@ void CServerListManager::SetDirectoryType ( const EDirectoryType eNCSAT )
 
     locker.unlock();
 
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "Manually unlocked Mutex";
+
     // sets the lock
     Register();
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
 }
 
 void CServerListManager::SetIsDirectory()
@@ -434,6 +446,8 @@ void CServerListManager::Unregister()
     // Update server registration status - sets the lock
     SetRegistered ( false );
 
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
+
     // this is called without the lock set
     QMutexLocker locker ( &Mutex );
 
@@ -451,6 +465,8 @@ void CServerListManager::Unregister()
         TimerIsPermanent.stop();
     }
     ServerList[0].bPermanentOnline = false;
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
 }
 
 // When we register, set the status and start timers
@@ -466,6 +482,8 @@ void CServerListManager::Register()
 
     // Update server registration status - sets the lock
     SetRegistered ( true );
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
 
     // this is called without the lock set
     QMutexLocker locker ( &Mutex );
@@ -507,11 +525,15 @@ void CServerListManager::Register()
         // permanent registered server
         TimerIsPermanent.start();
     }
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
 }
 
 /* Server list functionality **************************************************/
 void CServerListManager::OnTimerPingServerInList()
 {
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
+
     QMutexLocker locker ( &Mutex );
 
     const int iCurServerListSize = ServerList.size();
@@ -523,11 +545,15 @@ void CServerListManager::OnTimerPingServerInList()
         // send empty message to keep NAT port open at registered server
         pConnLessProtocol->CreateCLEmptyMes ( ServerList[iIdx].HostAddr );
     }
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
 }
 
 void CServerListManager::OnTimerPollList()
 {
     CVector<CHostAddress> vecRemovedHostAddr;
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
 
     QMutexLocker locker ( &Mutex );
 
@@ -545,10 +571,14 @@ void CServerListManager::OnTimerPollList()
 
     locker.unlock();
 
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "Manually unlocked Mutex";
+
     foreach ( const CHostAddress HostAddr, vecRemovedHostAddr )
     {
         qInfo() << qUtf8Printable ( QString ( "Expired entry for %1" ).arg ( HostAddr.toString() ) );
     }
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
 }
 
 void CServerListManager::Append ( const CHostAddress&    InetAddr,
@@ -591,6 +621,8 @@ void CServerListManager::Append ( const CHostAddress&    InetAddr,
             }
         }
 
+        qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
+
         // access/modifications to the server list needs to be mutexed
         QMutexLocker locker ( &Mutex );
 
@@ -628,6 +660,8 @@ void CServerListManager::Append ( const CHostAddress&    InetAddr,
         pConnLessProtocol->CreateCLRegisterServerResp ( InetAddr,
                                                         iSelIdx == INVALID_INDEX ? ESvrRegResult::SRR_SERVER_LIST_FULL
                                                                                  : ESvrRegResult::SRR_REGISTERED );
+
+        qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
     }
 }
 
@@ -636,6 +670,8 @@ void CServerListManager::Remove ( const CHostAddress& InetAddr )
     if ( bIsDirectory )
     {
         qInfo() << qUtf8Printable ( QString ( "Requested to unregister entry for %1" ).arg ( InetAddr.toString() ) );
+
+        qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
 
         QMutexLocker locker ( &Mutex );
 
@@ -647,6 +683,8 @@ void CServerListManager::Remove ( const CHostAddress& InetAddr )
         {
             ServerList.removeAt ( iIdx );
         }
+
+        qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
     }
 }
 
@@ -665,6 +703,8 @@ void CServerListManager::Remove ( const CHostAddress& InetAddr )
  */
 void CServerListManager::RetrieveAll ( const CHostAddress& InetAddr )
 {
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
+
     QMutexLocker locker ( &Mutex );
 
     if ( bIsDirectory )
@@ -725,6 +765,8 @@ void CServerListManager::RetrieveAll ( const CHostAddress& InetAddr )
         pConnLessProtocol->CreateCLRedServerListMes ( InetAddr, vecServerInfo );
         pConnLessProtocol->CreateCLServerListMes ( InetAddr, vecServerInfo );
     }
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
 }
 
 int CServerListManager::IndexOf ( const CHostAddress& haSearchTerm )
@@ -746,6 +788,8 @@ int CServerListManager::IndexOf ( const CHostAddress& haSearchTerm )
 
 bool CServerListManager::SetServerListFileName ( QString strFilename )
 {
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
+
     QMutexLocker locker ( &Mutex );
 
     if ( ServerListFileName == strFilename )
@@ -760,7 +804,11 @@ bool CServerListManager::SetServerListFileName ( QString strFilename )
     }
 
     ServerListFileName = strFilename;
-    return Load();
+
+    bool status = Load();
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
+    return status;
 }
 
 bool CServerListManager::Load()
@@ -869,6 +917,8 @@ void CServerListManager::Save()
 /* Registered server functionality *************************************************/
 void CServerListManager::StoreRegistrationResult ( ESvrRegResult eResult )
 {
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
+
     // we need the lock since the user might change the server properties at
     // any time so another response could arrive
     QMutexLocker locker ( &Mutex );
@@ -898,10 +948,14 @@ void CServerListManager::StoreRegistrationResult ( ESvrRegResult eResult )
         SetSvrRegStatus ( ESvrRegStatus::SRS_UNKNOWN_RESP );
         break;
     }
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
 }
 
 void CServerListManager::OnTimerPingServers()
 {
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
+
     QMutexLocker locker ( &Mutex );
 
     // first check if directory address is valid
@@ -911,10 +965,14 @@ void CServerListManager::OnTimerPingServers()
         // not require any answer from the directory
         pConnLessProtocol->CreateCLEmptyMes ( DirectoryAddress );
     }
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
 }
 
 void CServerListManager::OnTimerCLRegisterServerResp()
 {
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
+
     QMutexLocker locker ( &Mutex );
 
     if ( eSvrRegStatus == SRS_REQUESTED )
@@ -928,22 +986,31 @@ void CServerListManager::OnTimerCLRegisterServerResp()
         else
         {
             locker.unlock();
+            qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "Manually unlocked Mutex";
+
             {
                 OnTimerRefreshRegistration();
             }
+            qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to relock Mutex";
             locker.relock();
 
             // re-start timer for registration timeout
             TimerCLRegisterServerResp.start();
         }
     }
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
 }
 
 void CServerListManager::OnAboutToQuit()
 {
     {
+        qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
+
         QMutexLocker locker ( &Mutex );
         Save();
+
+        qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
     }
 
     // Sets the lock - also needs to come after Save()
@@ -952,6 +1019,8 @@ void CServerListManager::OnAboutToQuit()
 
 void CServerListManager::SetRegistered ( const bool bIsRegister )
 {
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to lock Mutex";
+
     // we need the lock since the user might change the server properties at
     // any time
     QMutexLocker locker ( &Mutex );
@@ -1020,6 +1089,8 @@ void CServerListManager::SetRegistered ( const bool bIsRegister )
             pConnLessProtocol->CreateCLUnregisterServerMes ( DirectoryAddress );
         }
     }
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to unlock Mutex if needed";
 }
 
 void CServerListManager::SetSvrRegStatus ( ESvrRegStatus eNSvrRegStatus )
