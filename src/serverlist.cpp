@@ -1038,6 +1038,9 @@ void CServerListManager::SetRegistered ( const bool bIsRegister )
         return;
     }
 
+    locker.unlock();
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "Manually unlocked Mutex";
+
     // get the correct directory address
     // Note that we always have to parse the server address again since if
     // it is an URL of a dynamic IP address, the IP address might have
@@ -1061,6 +1064,9 @@ void CServerListManager::SetRegistered ( const bool bIsRegister )
 #else
     const bool bDirectoryAddressValid = NetworkUtil::ParseNetworkAddress ( strNetworkAddress, DirectoryAddress, false );
 #endif
+
+    qInfo() << Q_FUNC_INFO << "thread" << QThread::currentThread() << "About to relock Mutex";
+    locker.relock();
 
     if ( bIsRegister )
     {
