@@ -30,6 +30,7 @@
 #    include <ws2tcpip.h>
 #    include <windows.h>
 #    include <mmsystem.h>
+#    include <Qos2.h>
 #elif defined( __APPLE__ ) || defined( __MACOSX )
 // using mach timers for Mac
 #    include <mach/mach.h>

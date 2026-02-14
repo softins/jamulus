@@ -34,6 +34,7 @@
 #ifndef _WIN32
 #    include <netinet/in.h>
 #    include <sys/socket.h>
+#    include <arpa/inet.h>
 #endif
 
 // The header files channel.h and server.h require to include this header file
@@ -71,6 +72,8 @@ protected:
 
 #ifdef _WIN32
     SOCKET UdpSocket;
+    HANDLE hQos;
+    QOS_FLOWID flowId;
 #else
     int UdpSocket;
 #endif

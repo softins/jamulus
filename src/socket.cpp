@@ -25,13 +25,6 @@
 #include "socket.h"
 #include "server.h"
 
-#ifdef _WIN32
-#    include <winsock2.h>
-#    include <ws2tcpip.h>
-#else
-#    include <arpa/inet.h>
-#endif
-
 /* Implementation *************************************************************/
 
 // Connections -------------------------------------------------------------
@@ -98,6 +91,16 @@ void CSocket::Init ( const quint16 iNewPortNumber, const quint16 iNewQosNumber, 
 
     WSADATA wsa;
     WSAStartup ( MAKEWORD ( 1, 0 ), &wsa );
+
+    // set up the QoS handle
+    QOS_VERSION ver {} ;
+    ver.MajorVersion = 1;
+    ver.MinorVersion = 0;
+
+    if ( QOSCreateHandle(&ver, &hQos) == FALSE )
+    {
+            throw CGenErr ( "QOS handle creation failure.", "Network Error" );
+    }
 #endif
 
     memset ( &UdpSocketAddr, 0, sizeof ( UdpSocketAddr ) );
