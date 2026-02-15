@@ -251,10 +251,13 @@ void CSocket::Init ( const quint16 iNewPortNumber, const quint16 iNewQosNumber, 
 
     DWORD dscp = (DWORD)((iQosNumber >> 2) & 0x3F);
 
-    if (!QOSAddSocketToFlow(hQos, UdpSocket, nullptr, QOSTrafficTypeExcellentEffort,
+    flowId = 0;
+    if (!QOSAddSocketToFlow(hQos, UdpSocket, nullptr, QOSTrafficTypeBestEffort,
                 QOS_NON_ADAPTIVE_FLOW,
-                &flowId))
+                reinterpret_cast<PQOS_FLOWID>(&flowId)))
     {
+        DWORD err = GetLastError();
+        qInfo() << "QOSAddSocketToFlow failed, err =" << err;
         throw CGenErr ( "Cannot add the socket to Flow for setting ToS", "Network Error" );
     }
 
