@@ -99,7 +99,7 @@ void CSocket::Init ( const quint16 iNewPortNumber, const quint16 iNewQosNumber, 
 
     if ( QOSCreateHandle(&ver, &hQos) == FALSE )
     {
-            throw CGenErr ( "QOS handle creation failure.", "Network Error" );
+        throw CGenErr ( "QOS handle creation failure.", "Network Error" );
     }
 #endif
 
@@ -242,14 +242,45 @@ void CSocket::Init ( const quint16 iNewPortNumber, const quint16 iNewQosNumber, 
     {
         // we cannot bind socket, throw error
         throw CGenErr ( "Cannot bind the socket (maybe "
-                        "the software is already running).",
-                        "Network Error" );
+                "the software is already running).",
+                "Network Error" );
     }
+
+#ifdef _WIN32
+    // apply the ToS/QoS setting to the Windows socket using qWAVE
+
+    DWORD dscp = (DWORD)((iQosNumber >> 2) & 0x3F);
+
+    if (!QOSAddSocketToFlow(hQos, UdpSocket, nullptr, QOSTrafficTypeExcellentEffort,
+                QOS_NON_ADAPTIVE_FLOW,
+                &flowId))
+    {
+        throw CGenErr ( "Cannot add the socket to Flow for setting ToS", "Network Error" );
+    }
+
+    // QOSSetFlow() needs Admin or Network Configuration privilege
+    if (!QOSSetFlow(hQos, flowId, QOSSetOutgoingDSCPValue, sizeof(dscp), &dscp, 0, nullptr))
+    {
+        QOSRemoveSocketFromFlow(hQos, UdpSocket, flowId, 0);
+        flowId = 0;
+        throw CGenErr ( "Cannot set ToS value for UDP socket - need Administrator or Network Configuration privilege", "Network Error" );
+    }
+#endif
 }
 
 void CSocket::Close()
 {
 #ifdef _WIN32
+    // remove the socket from the qWAVE flow first
+    if (hQos) {
+        if (flowId != 0) {
+            QOSRemoveSocketFromFlow(hQos, UdpSocket, flowId, 0);
+            flowId = 0;
+        }
+        QOSCloseHandle(hQos);
+        hQos = nullptr;
+    }
+
     // closesocket will cause recvfrom to return with an error because the
     // socket is closed -> then the thread can safely be shut down
     closesocket ( UdpSocket );
@@ -266,6 +297,16 @@ CSocket::~CSocket()
 {
     // cleanup the socket (on Windows the WSA cleanup must also be called)
 #ifdef _WIN32
+    // remove the socket from the qWAVE flow if not removed already
+    if (hQos) {
+        if (flowId != 0) {
+            QOSRemoveSocketFromFlow(hQos, UdpSocket, flowId, 0);
+            flowId = 0;
+        }
+        QOSCloseHandle(hQos);
+        hQos = nullptr;
+    }
+
     closesocket ( UdpSocket );
     WSACleanup();
 #else
