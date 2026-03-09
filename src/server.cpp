@@ -87,6 +87,7 @@ CServer::CServer ( const int          iNewMaxNumChan,
                         strServerPublicIP,
                         strServerListFilter,
                         iNewMaxNumChan,
+                        bNEnableTcp,
                         &ConnLessProtocol ),
     JamController ( this ),
     bDisableRecording ( bDisableRecording ),
@@ -398,6 +399,12 @@ void CServer::SendProtMessage ( int iChID, CVector<uint8_t> vecMessage )
 void CServer::OnNewConnection ( int iChID, int iTotChans, CHostAddress RecHostAddr )
 {
     QMutexLocker locker ( &Mutex );
+
+    // if TCP is enabled, we need to announce this first, before sending Client ID
+    if ( bEnableTcp )
+    {
+        ConnLessProtocol.CreateCLTcpSupportedMes ( vecChannels[iChID].GetAddress() );
+    }
 
     // inform the client about its own ID at the server (note that this
     // must be the first message to be sent for a new connection)
