@@ -666,7 +666,8 @@ void CProtocol::CreateAndImmSendAcknMess ( const int& iID, const int& iCnt )
 void CProtocol::CreateAndImmSendConLessMessage ( const int               iID,
                                                  const CVector<uint8_t>& vecData,
                                                  const CHostAddress&     InetAddr,
-                                                 CTcpConnection*         pTcpConnection )
+                                                 CTcpConnection*         pTcpConnection,
+                                                 bool                    bUseTcpClient )
 {
     CVector<uint8_t> vecNewMessage;
 
@@ -2310,9 +2311,9 @@ bool CProtocol::EvaluateCLRedServerListMes ( const CHostAddress& InetAddr, const
     return false; // no error
 }
 
-void CProtocol::CreateCLReqServerListMes ( const CHostAddress& InetAddr )
+void CProtocol::CreateCLReqServerListMes ( const CHostAddress& InetAddr, bool bUseTcpClient )
 {
-    CreateAndImmSendConLessMessage ( PROTMESSID_CLM_REQ_SERVER_LIST, CVector<uint8_t> ( 0 ), InetAddr );
+    CreateAndImmSendConLessMessage ( PROTMESSID_CLM_REQ_SERVER_LIST, CVector<uint8_t> ( 0 ), InetAddr, nullptr, bUseTcpClient );
 }
 
 bool CProtocol::EvaluateCLReqServerListMes ( const CHostAddress& InetAddr, CTcpConnection* pTcpConnection )
@@ -2563,9 +2564,9 @@ bool CProtocol::EvaluateCLConnClientsListMes ( const CHostAddress& InetAddr, con
     return false; // no error
 }
 
-void CProtocol::CreateCLReqConnClientsListMes ( const CHostAddress& InetAddr )
+void CProtocol::CreateCLReqConnClientsListMes ( const CHostAddress& InetAddr, bool bUseTcpClient )
 {
-    CreateAndImmSendConLessMessage ( PROTMESSID_CLM_REQ_CONN_CLIENTS_LIST, CVector<uint8_t> ( 0 ), InetAddr );
+    CreateAndImmSendConLessMessage ( PROTMESSID_CLM_REQ_CONN_CLIENTS_LIST, CVector<uint8_t> ( 0 ), InetAddr, nullptr, bUseTcpClient );
 }
 
 bool CProtocol::EvaluateCLReqConnClientsListMes ( const CHostAddress& InetAddr, CTcpConnection* pTcpConnection )
