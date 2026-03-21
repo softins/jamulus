@@ -65,6 +65,7 @@
 #include "serverlogging.h"
 #include "serverlist.h"
 #include "tcpserver.h"
+#include "tcpconnection.h"
 #include "recorder/jamcontroller.h"
 
 #include "threadpool.h"
