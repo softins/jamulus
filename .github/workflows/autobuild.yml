@@ -198,7 +198,7 @@ jobs:
             building_on_os:         ubuntu-22.04
             base_command:           ./.github/autobuild/android.sh
             run_codeql:             true
-            is_main_build_target:   true
+            #is_main_build_target:   true
             # Jamulus.pro needs to count git history length for android versioning:
             checkout_fetch_depth:   '0'
 
@@ -216,6 +216,7 @@ jobs:
             building_container:     ubuntu:20.04
             base_command:           TARGET_ARCH=armhf ./.github/autobuild/linux_deb.sh
             run_codeql:             false
+            is_main_build_target:   true
 
           - config_name:            Linux .deb arm64 (artifacts)
             target_os:              linux
@@ -223,6 +224,7 @@ jobs:
             building_container:     ubuntu:20.04
             base_command:           TARGET_ARCH=arm64 ./.github/autobuild/linux_deb.sh
             run_codeql:             false
+            is_main_build_target:   true
 
           - config_name:            MacOS (artifacts)
             target_os:              macos
@@ -231,7 +233,7 @@ jobs:
             # Disable CodeQL on mac as it interferes with signing the binaries (signing hangs, see #2563 and #2564)
             run_codeql:             false
             xcode_version:          16.3.0
-            is_main_build_target:   true
+            #is_main_build_target:   true
 
           # Reminder: If Legacy is removed, be sure to add a dedicated job for CodeQL again.
           - config_name:            MacOS Legacy (artifacts+CodeQL)
@@ -244,7 +246,7 @@ jobs:
             # https://developer.apple.com/support/xcode/
             # https://xcodereleases.com/
             xcode_version:          16.3.0
-            is_main_build_target:   true
+            #is_main_build_target:   true
 
           - config_name:            iOS (artifacts)
             target_os:              ios
@@ -261,7 +263,7 @@ jobs:
             building_on_os:         windows-2022
             base_command:           powershell .\.github\autobuild\windows.ps1 -Stage
             run_codeql:             true
-            is_main_build_target:   true
+            #is_main_build_target:   true
 
           - config_name:            Windows JACK (artifact)
             target_os:              windows
