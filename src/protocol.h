@@ -185,7 +185,7 @@ public:
     void CreateCLRegisterServerResp ( const CHostAddress& InetAddr, const ESvrRegResult eResult );
     void CreateCLServerFeaturesMes ( const CHostAddress& InetAddr, const uint32_t iResult );
     void CreateCLWelcomeMessageMes ( const CHostAddress& InetAddr, const QString strWelcomeMessage );
-    void CreateCLTcpSupportedMes ( const CHostAddress& InetAddr );
+    void CreateCLTcpSupportedMes ( const CHostAddress& InetAddr, const int iID );
 
     static int GetBodyLength ( const CVector<uint8_t>& vecbyData );
 
@@ -324,7 +324,7 @@ protected:
     bool EvaluateCLRegisterServerResp ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
     bool EvaluateCLReqServerFeaturesMes ( const CHostAddress& InetAddr );
     bool EvaluateCLReqWelcomeMessageMes ( const CHostAddress& InetAddr );
-    bool EvaluateCLTcpSupportedMes ( const CHostAddress& InetAddr );
+    bool EvaluateCLTcpSupportedMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
 
     int iOldRecID;
     int iOldRecCnt;
@@ -394,5 +394,5 @@ signals:
     void CLRegisterServerResp ( CHostAddress InetAddr, ESvrRegResult eStatus );
     void CLReqServerFeatures ( CHostAddress InetAddr );
     void CLReqWelcomeMessage ( CHostAddress InetAddr );
-    void CLTcpSupported ( CHostAddress InetAddr );
+    void CLTcpSupported ( CHostAddress InetAddr, int iID );
 };
