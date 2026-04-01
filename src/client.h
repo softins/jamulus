@@ -455,6 +455,10 @@ protected:
     int    maxGainOrPanId;
     int    iCurPingTime;
 
+    // for TCP protocol support
+    bool bTcpSupported;
+    int  iClientID;
+
 protected slots:
     void OnHandledSignal ( int sigNum );
     void OnSendProtMessage ( CVector<uint8_t> vecMessage );
@@ -474,6 +478,7 @@ protected slots:
         }
     }
     void OnCLPingReceived ( CHostAddress InetAddr, int iMs );
+    void OnCLTcpSupported ( CHostAddress InetAddr, int iID );
 
     void OnSendCLProtMessage ( CHostAddress InetAddr, CVector<uint8_t> vecMessage, CTcpConnection* pTcpConnection, bool bUseTcpClient );
 
