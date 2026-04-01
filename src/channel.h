@@ -287,6 +287,7 @@ public slots:
         emit DetectedCLMessage ( vecbyMesBodyData, iRecID, RecHostAddr, pTcpConnection );
     }
 
+    void OnClientIDReceived ( int iChanID );
     void OnNewConnection() { emit NewConnection(); }
 
 signals:
