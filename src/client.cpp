@@ -1051,6 +1051,7 @@ void CClient::OnClientIDReceived ( int iServerChanID )
     {
         // *** Make TCP connection
         qDebug() << Q_FUNC_INFO << "need to make TCP connection for" << iClientID;
+        ConnLessProtocol.CreateCLClientIDMes ( Channel.GetAddress(), iClientID, PROTO_TCP_LONG ); // create persistent TCP connection
     }
 
     // allocate and map client-side channel 0
@@ -1105,6 +1106,8 @@ void CClient::OnCLTcpSupported ( CHostAddress InetAddr, int iID )
     {
         // *** Make TCP connection
         qDebug() << Q_FUNC_INFO << "need to make TCP connection for" << iClientID;
+        Q_ASSERT ( InetAddr == Channel.GetAddress() );
+        ConnLessProtocol.CreateCLClientIDMes ( InetAddr, iClientID, PROTO_TCP_LONG ); // create persistent TCP connection
     }
 }
 
