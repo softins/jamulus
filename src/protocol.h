@@ -195,7 +195,7 @@ public:
     void CreateCLServerFeaturesMes ( const CHostAddress& InetAddr, const uint32_t iResult );
     void CreateCLWelcomeMessageMes ( const CHostAddress& InetAddr, const QString strWelcomeMessage );
     void CreateCLTcpSupportedMes ( const CHostAddress& InetAddr, const int iID );
-    void CreateCLClientIDMes ( const CHostAddress& InetAddr, const int iChanID, CTcpConnection* pTcpConnection );
+    void CreateCLClientIDMes ( const CHostAddress& InetAddr, const int iChanID, enum EProtoMode eProtoMode );
 
     static int GetBodyLength ( const CVector<uint8_t>& vecbyData );
 
