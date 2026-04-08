@@ -545,7 +545,7 @@ void CServerListManager::OnTimerPingServerInList()
     for ( int iIdx = 1; iIdx < iCurServerListSize; iIdx++ )
     {
         // send empty message to keep NAT port open at registered server
-        pConnLessProtocol->CreateCLEmptyMes ( ServerList[iIdx].HostAddr );
+        pConnLessProtocol->CreateCLEmptyMes ( ServerList[iIdx].HostAddr, nullptr );
     }
 }
 
@@ -953,7 +953,7 @@ void CServerListManager::OnTimerPingServers()
     {
         // send empty message to directory to keep NAT port open -> we do
         // not require any answer from the directory
-        pConnLessProtocol->CreateCLEmptyMes ( DirectoryAddress );
+        pConnLessProtocol->CreateCLEmptyMes ( DirectoryAddress, nullptr );
     }
 }
 
