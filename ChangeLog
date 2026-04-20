@@ -1,5 +1,7 @@
 ### 3.12.0dev <- NOTE: the release version number will be 4.0.0 ###
 
+- Add uncompressed audio transmission, improves latency by 2ms
+  (contributed by @dingodoppelt)
 
 ### 3.12.0 (2026-05-02) ###
 
