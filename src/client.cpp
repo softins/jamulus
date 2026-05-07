@@ -1190,7 +1190,7 @@ void CClient::Init()
             case AQ_RAW:
                 if ( bRawAudioIsSupported && Channel.IsEnabled() )
                 {
-                    iCeltNumCodedBytes = iNumAudioChannels * iOPUSFrameSizeSamples * sizeof ( int16_t );
+                    iCeltNumCodedBytes = sizeof ( int16_t ) * iNumAudioChannels * iOPUSFrameSizeSamples;
                 }
                 else
                 {
@@ -1219,7 +1219,7 @@ void CClient::Init()
             case AQ_RAW:
                 if ( bRawAudioIsSupported && Channel.IsEnabled() )
                 {
-                    iCeltNumCodedBytes = iNumAudioChannels * iOPUSFrameSizeSamples * sizeof ( int16_t );
+                    iCeltNumCodedBytes = sizeof ( int16_t ) * iNumAudioChannels * iOPUSFrameSizeSamples;
                 }
                 else
                 {
@@ -1253,7 +1253,7 @@ void CClient::Init()
             case AQ_RAW:
                 if ( bRawAudioIsSupported && Channel.IsEnabled() )
                 {
-                    iCeltNumCodedBytes = iNumAudioChannels * iOPUSFrameSizeSamples * sizeof ( int16_t );
+                    iCeltNumCodedBytes = sizeof ( int16_t ) * iNumAudioChannels * iOPUSFrameSizeSamples;
                 }
                 else
                 {
@@ -1282,7 +1282,7 @@ void CClient::Init()
             case AQ_RAW:
                 if ( bRawAudioIsSupported && Channel.IsEnabled() )
                 {
-                    iCeltNumCodedBytes = iNumAudioChannels * iOPUSFrameSizeSamples * sizeof ( int16_t );
+                    iCeltNumCodedBytes = sizeof ( int16_t ) * iNumAudioChannels * iOPUSFrameSizeSamples;
                 }
                 else
                 {

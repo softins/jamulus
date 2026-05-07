@@ -885,7 +885,7 @@ void CServer::DecodeReceiveData ( const int iChanCnt, const int iNumClients )
             // sizeof ( int16_t ) is the size in bytes for the raw pcm audio data = 2
             // Sizes other than that are considered OPUS coded because those depend on hardcoded sizes in client.h
             const bool bIsRawAudio =
-                ( iCeltNumCodedBytes == static_cast<int> ( iClientFrameSizeSamples * vecNumAudioChannels[iChanCnt] * sizeof ( int16_t ) ) );
+                ( iCeltNumCodedBytes == static_cast<int> ( sizeof ( int16_t ) * iClientFrameSizeSamples * vecNumAudioChannels[iChanCnt] ) );
 
             // get pointer to coded data
             if ( eGetStat == GS_BUFFER_OK )
@@ -1176,7 +1176,7 @@ void CServer::MixEncodeTransmitData ( const int iChanCnt, const int iNumClients 
             DoubleFrameSizeConvBufOut[iCurChanID].GetAll ( vecsSendData, DOUBLE_SYSTEM_FRAME_SIZE_SAMPLES * vecNumAudioChannels[iChanCnt] );
         }
 
-        if ( iCeltNumCodedBytes != static_cast<int> ( iClientFrameSizeSamples * vecNumAudioChannels[iChanCnt] * sizeof ( int16_t ) ) )
+        if ( iCeltNumCodedBytes != static_cast<int> ( sizeof ( int16_t ) * iClientFrameSizeSamples * vecNumAudioChannels[iChanCnt] ) )
         {
             // OPUS encoding
             if ( pCurOpusEncoder != nullptr )
