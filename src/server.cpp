@@ -910,6 +910,7 @@ void CServer::DecodeReceiveData ( const int iChanCnt, const int iNumClients )
                 pCurCodedData = nullptr;
             }
 
+            // OPUS decode received data stream
             if ( !bIsRawAudio && CurOpusDecoder != nullptr )
             {
                 iUnused = opus_custom_decode ( CurOpusDecoder,
