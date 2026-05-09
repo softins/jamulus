@@ -754,7 +754,7 @@ void CServer::DecodeReceiveData ( const int iChanCnt, const int iNumClients )
     int                iUnused;
     int                iClientFrameSizeSamples = 0; // initialize to avoid a compiler warning
     OpusCustomDecoder* CurOpusDecoder;
-    unsigned char*     pCurCodedData;
+    unsigned char*     pCurCodedData = nullptr; // Only used with opus coding, nullptr in case of raw or packet loss
 
     // get actual ID of current channel
     const int iCurChanID = vecChanIDsCurConChan[iChanCnt];
@@ -893,7 +893,6 @@ void CServer::DecodeReceiveData ( const int iChanCnt, const int iNumClients )
                 if ( bIsRawAudio )
                 {
                     memcpy ( &vecvecsData[iChanCnt][iOffset], &vecvecbyCodedData[iChanCnt][0], iCeltNumCodedBytes );
-                    pCurCodedData = nullptr;
                 }
                 else
                 {
@@ -906,8 +905,6 @@ void CServer::DecodeReceiveData ( const int iChanCnt, const int iNumClients )
                 {
                     memset ( &vecvecsData[iChanCnt][iOffset], 0, iCeltNumCodedBytes );
                 }
-                // for lost packets use null pointer as coded input data
-                pCurCodedData = nullptr;
             }
 
             // OPUS decode received data stream
