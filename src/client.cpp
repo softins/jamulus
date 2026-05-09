@@ -71,7 +71,8 @@ CClient::CClient ( const quint16  iPortNumber,
     bEnableIPv6 ( bNEnableIPv6 ),
     bMuteMeInPersonalMix ( bNMuteMeInPersonalMix ),
     iServerSockBufNumFrames ( DEF_NET_BUF_SIZE_NUM_BL ),
-    bRawAudioIsSupported ( false )
+    bRawAudioIsSupported ( false ),
+    bUseRawAudio ( false )
 {
     int iOpusError;
 
@@ -1046,6 +1047,7 @@ void CClient::Stop()
 
     // Fall back to opus in case raw was used
     bRawAudioIsSupported = false;
+    bUseRawAudio = false;
     Init();
 
     // wait for approx. 100 ms to make sure no audio packet is still in the
@@ -1293,6 +1295,9 @@ void CClient::Init()
         }
     }
 
+    // determine whether to use raw audio
+    bUseRawAudio = bRawAudioIsSupported && eAudioQuality == AQ_RAW;
+
     // calculate stereo (two channels) buffer size
     iStereoBlockSizeSam = 2 * iMonoBlockSizeSam;
 
@@ -1301,7 +1306,7 @@ void CClient::Init()
     vecsStereoSndCrdMuteStream.Init ( iStereoBlockSizeSam );
 
     // In case we are connected to a non raw audio server or we don't use raw audio we need to initialze the codec
-    if ( !bRawAudioIsSupported || eAudioQuality != AQ_RAW )
+    if ( !bUseRawAudio )
     {
         opus_custom_encoder_ctl ( CurOpusEncoder,
                                   OPUS_SET_BITRATE ( CalcBitRateBitsPerSecFromCodedBytes ( iCeltNumCodedBytes, iOPUSFrameSizeSamples ) ) );
@@ -1466,7 +1471,7 @@ void CClient::ProcessAudioDataIntern ( CVector<int16_t>& vecsStereoSndCrd )
 
     for ( i = 0, j = 0; i < iSndCrdFrameSizeFactor; i++, j += iNumAudioChannels * iOPUSFrameSizeSamples )
     {
-        if ( eAudioQuality != AQ_RAW || !bRawAudioIsSupported )
+        if ( !bUseRawAudio )
         {
             // OPUS encoding
             if ( CurOpusEncoder != nullptr )
@@ -1536,7 +1541,7 @@ void CClient::ProcessAudioDataIntern ( CVector<int16_t>& vecsStereoSndCrd )
             bJitterBufferOK = false;
         }
 
-        if ( ( eAudioQuality != AQ_RAW || !bRawAudioIsSupported ) && CurOpusDecoder != nullptr )
+        if ( !bUseRawAudio && CurOpusDecoder != nullptr )
         {
             // OPUS decoding
             iUnused = opus_custom_decode ( CurOpusDecoder, pCurCodedData, iCeltNumCodedBytes, &vecsStereoSndCrd[j], iOPUSFrameSizeSamples );
