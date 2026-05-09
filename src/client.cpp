@@ -1300,7 +1300,8 @@ void CClient::Init()
     vecZeros.Init ( iStereoBlockSizeSam, 0 );
     vecsStereoSndCrdMuteStream.Init ( iStereoBlockSizeSam );
 
-    if ( !bRawAudioIsSupported )
+    // In case we are connected to a non raw audio server or we don't use raw audio we need to initialze the codec
+    if ( !bRawAudioIsSupported || eAudioQuality != AQ_RAW )
     {
         opus_custom_encoder_ctl ( CurOpusEncoder,
                                   OPUS_SET_BITRATE ( CalcBitRateBitsPerSecFromCodedBytes ( iCeltNumCodedBytes, iOPUSFrameSizeSamples ) ) );
