@@ -1047,7 +1047,7 @@ void CClient::Stop()
 
     // Fall back to opus in case raw was used
     bRawAudioIsSupported = false;
-    bUseRawAudio = false;
+    bUseRawAudio         = false;
     Init();
 
     // wait for approx. 100 ms to make sure no audio packet is still in the
