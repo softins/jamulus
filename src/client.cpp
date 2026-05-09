@@ -1526,6 +1526,7 @@ void CClient::ProcessAudioDataIntern ( CVector<int16_t>& vecsStereoSndCrd )
             {
                 pCurCodedData = &vecbyNetwData[0];
             }
+
             // on any valid received packet, we clear the initialization phase flag
             bIsInitializationPhase = false;
         }
@@ -1535,8 +1536,10 @@ void CClient::ProcessAudioDataIntern ( CVector<int16_t>& vecsStereoSndCrd )
             {
                 memset ( &vecsStereoSndCrd[j], 0, iCeltNumCodedBytes );
             }
+
             // for lost packets use null pointer as coded input data
             pCurCodedData = nullptr;
+
             // invalidate the buffer OK status flag
             bJitterBufferOK = false;
         }
