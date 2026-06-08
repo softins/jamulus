@@ -25,11 +25,10 @@
 
 #include "server.h"
 
-CTcpServer::CTcpServer ( CServer* pNServP, const QString& strServerBindIP, int iPort, bool bEnableIPv6 ) :
+CTcpServer::CTcpServer ( CServer* pNServP, const QString& strServerBindIP, int iPort ) :
     pServer ( pNServP ),
     strServerBindIP ( strServerBindIP ),
     iPort ( iPort ),
-    bEnableIPv6 ( bEnableIPv6 ),
     pTcpServer ( new QTcpServer ( this ) )
 {
     connect ( pTcpServer, &QTcpServer::newConnection, this, &CTcpServer::OnNewConnection );
@@ -53,9 +52,9 @@ bool CTcpServer::Start()
     }
 
     // default to any-address for either both IP protocols or just IPv4
-    QHostAddress hostAddress = bEnableIPv6 ? QHostAddress::Any : QHostAddress::AnyIPv4;
+    QHostAddress hostAddress = pServer->IsIPv6Available() ? QHostAddress::Any : QHostAddress::AnyIPv4;
 
-    if ( !bEnableIPv6 )
+    if ( !pServer->IsIPv6Available() )
     {
         if ( !strServerBindIP.isEmpty() )
         {

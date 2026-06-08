@@ -46,7 +46,7 @@ class CTcpServer : public QObject
     Q_OBJECT
 
 public:
-    CTcpServer ( CServer* pNServP, const QString& strServerBindIP, int iPort, bool bEnableIPv6 );
+    CTcpServer ( CServer* pNServP, const QString& strServerBindIP, int iPort );
     ~CTcpServer();
 
     bool Start();
@@ -55,7 +55,6 @@ private:
     CServer*      pServer; // for server
     const QString strServerBindIP;
     const int     iPort;
-    const bool    bEnableIPv6;
     QTcpServer*   pTcpServer;
 
 private slots:
