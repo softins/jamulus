@@ -590,20 +590,20 @@ void CServer::OnCLClientIDReceived ( CHostAddress InetAddr, int iChanID, CTcpCon
     {
         // ID out of range or channel not connected - reject connection
         pTcpConnection->disconnectFromHost();
-        qDebug() << "- rejected invalid client ID";
+        qWarning() << "- Jamulus-TCP: rejected invalid client ID";
         return;
     }
 
     CChannel* pChannel = &vecChannels[iChanID];
 
-    qDebug() << "- request to link TCP connection with UDP client at" << pChannel->GetAddress().toString();
+    qInfo() << "- Jamulus-TCP: request to link TCP connection with UDP client at" << pChannel->GetAddress().toString();
 
     // compare IP addresses, but not port numbers
     if ( InetAddr.InetAddr != pChannel->GetAddress().InetAddr )
     {
         // IP address mismatch - reject connection
         pTcpConnection->disconnectFromHost();
-        qDebug() << "- rejected mismatched IP address";
+        qWarning() << "- Jamulus-TCP: rejected mismatched IP address";
         return;
     }
 

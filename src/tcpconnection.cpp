@@ -81,7 +81,7 @@ CTcpConnection::CTcpConnection ( QTcpSocket* pTcpSocket, const CHostAddress& tcp
 
 void CTcpConnection::OnDisconnected()
 {
-    qDebug() << "- Jamulus-TCP: disconnected from:" << tcpAddress.toString();
+    qInfo() << "- Jamulus-TCP: disconnected from:" << tcpAddress.toString();
     TimerKeepalive.stop();
     TimerIdleTimeout.stop();
     pTcpSocket->deleteLater();
@@ -179,7 +179,7 @@ void CTcpConnection::OnReadyRead()
                 }
                 else
                 {
-                    qDebug() << "- Jamulus-TCP: failed to parse frame";
+                    qWarning() << "- Jamulus-TCP: failed to parse frame";
                 }
 
                 iPos = 0; // ready for next message, if any
@@ -205,6 +205,7 @@ void CTcpConnection::OnTimerKeepalive()
 void CTcpConnection::OnTimerIdleTimeout()
 {
     // qDebug() << "- ConnTimeout timer" << this << "from TCP" << tcpAddress.toString();
+    qWarning() << "- Jamulus-TCP: idle timeout - disconnecting";
     disconnectFromHost();
 }
 

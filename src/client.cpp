@@ -284,16 +284,17 @@ void CClient::OnSendCLProtMessage ( CHostAddress InetAddr, CVector<uint8_t> vecM
         // create a TCP client connection and send message
         QTcpSocket* pSocket = new QTcpSocket ( this );
 
-        // timer for TCP connect timeout shorter than Qt default 30 seconds
+        // timer for TCP connect timeout because Qt defaults to 30 seconds
+        // and we want it to be 3 seconds (TCP_CONNECT_TIMEOUT_MS)
         QTimer* pTimer = new QTimer ( this );
         pTimer->setSingleShot ( true );
 
-        connect ( pTimer, &QTimer::timeout, this, [this, pSocket, pTimer]() {
+        connect ( pTimer, &QTimer::timeout, this, [this, pSocket, pTimer, InetAddr]() {
             if ( pSocket->state() != QAbstractSocket::ConnectedState )
             {
                 pSocket->abort();
                 pSocket->deleteLater();
-                qDebug() << "- TCP connect timeout";
+                qWarning() << "- Jamulus-TCP: timeout connecting to" << InetAddr.toString();
             }
             pTimer->deleteLater();
         } );
