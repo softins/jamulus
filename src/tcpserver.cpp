@@ -64,10 +64,11 @@ bool CTcpServer::Start()
 
     if ( pTcpServer->listen ( hostAddress, iPort ) )
     {
-        qInfo() << qUtf8Printable ( QString ( "- Jamulus-TCP: Server started on port %1" ).arg ( pTcpServer->serverPort() ) );
+        qInfo() << qUtf8Printable ( QString ( "- Jamulus-TCP: server started on port %1" ).arg ( pTcpServer->serverPort() ) );
         return true;
     }
-    qInfo() << "- Jamulus-TCP: Unable to start server:" << pTcpServer->errorString();
+    qWarning() << qUtf8Printable (
+        QString ( "- Jamulus-TCP: unable to start server on port %1: %2" ).arg ( pTcpServer->serverPort() ).arg ( pTcpServer->errorString() ) );
     return false;
 }
 
