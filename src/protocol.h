@@ -395,6 +395,6 @@ signals:
     void CLReqConnClientsList ( CHostAddress InetAddr, CTcpConnection* pTcpConnection );
     void CLChannelLevelListReceived ( CHostAddress InetAddr, CVector<uint16_t> vecLevelList );
     void CLRegisterServerResp ( CHostAddress InetAddr, ESvrRegResult eStatus );
-    void CLTcpSupported ( CHostAddress InetAddr, int iID );
+    void CLTcpSupportedReceived ( CHostAddress InetAddr, int iID );
     void CLClientIDReceived ( CHostAddress InetAddr, int iChanID, CTcpConnection* pTcpConnection );
 };

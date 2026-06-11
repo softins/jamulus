@@ -2686,7 +2686,7 @@ bool CProtocol::EvaluateCLTcpSupportedMes ( const CHostAddress& InetAddr, const 
     }
 
     // invoke message action
-    emit CLTcpSupported ( InetAddr, static_cast<int> ( GetValFromStream ( vecData, iPos, 2 ) ) );
+    emit CLTcpSupportedReceived ( InetAddr, static_cast<int> ( GetValFromStream ( vecData, iPos, 2 ) ) );
 
     return false; // no error
 }
