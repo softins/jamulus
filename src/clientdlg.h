@@ -242,7 +242,7 @@ public slots:
         ConnectDlg.SetServerList ( InetAddr, vecServerInfo, true );
     }
 
-    void OnCLTcpSupported ( CHostAddress InetAddr, int iID ) { ConnectDlg.SetTcpSupported ( InetAddr, iID ); }
+    void OnCLTcpSupportedReceived ( CHostAddress InetAddr, int iID ) { ConnectDlg.SetTcpSupported ( InetAddr, iID ); }
 
     void OnCLConnClientsListMesReceived ( CHostAddress InetAddr, CVector<CChannelInfo> vecChanInfo )
     {

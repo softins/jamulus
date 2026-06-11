@@ -477,7 +477,7 @@ protected slots:
         }
     }
     void OnCLPingReceived ( CHostAddress InetAddr, int iMs );
-    void OnCLTcpSupported ( CHostAddress InetAddr, int iID );
+    void OnCLTcpSupportedReceived ( CHostAddress InetAddr, int iID );
 
     void OnSendCLProtMessage ( CHostAddress InetAddr, CVector<uint8_t> vecMessage, CTcpConnection* pTcpConnection, enum EProtoMode eProtoMode );
 
@@ -516,7 +516,7 @@ signals:
 
     void CLRedServerListReceived ( CHostAddress InetAddr, CVector<CServerInfo> vecServerInfo );
 
-    void CLTcpSupported ( CHostAddress InetAddr, int iID );
+    void CLTcpSupportedReceived ( CHostAddress InetAddr, int iID );
 
     void CLConnClientsListMesReceived ( CHostAddress InetAddr, CVector<CChannelInfo> vecChanInfo );
 

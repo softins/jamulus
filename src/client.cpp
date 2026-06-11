@@ -169,7 +169,7 @@ CClient::CClient ( const quint16  iPortNumber,
 
     QObject::connect ( &ConnLessProtocol, &CProtocol::CLRedServerListReceived, this, &CClient::CLRedServerListReceived );
 
-    QObject::connect ( &ConnLessProtocol, &CProtocol::CLTcpSupported, this, &CClient::OnCLTcpSupported );
+    QObject::connect ( &ConnLessProtocol, &CProtocol::CLTcpSupportedReceived, this, &CClient::OnCLTcpSupportedReceived );
 
     QObject::connect ( &ConnLessProtocol, &CProtocol::CLConnClientsListMesReceived, this, &CClient::OnCLConnClientsListMesReceived );
 
@@ -1109,13 +1109,13 @@ void CClient::OnRawAudioSupported()
     }
 }
 
-void CClient::OnCLTcpSupported ( CHostAddress InetAddr, int iID )
+void CClient::OnCLTcpSupportedReceived ( CHostAddress InetAddr, int iID )
 {
     qDebug() << "- TCP supported at server" << InetAddr.toString() << "for ID =" << iID;
 
     if ( iID != PROTMESSID_CLM_CLIENT_ID )
     {
-        emit CLTcpSupported ( InetAddr, iID ); // pass to connect dialog
+        emit CLTcpSupportedReceived ( InetAddr, iID ); // pass to connect dialog
         return;
     }
 

@@ -405,6 +405,6 @@ signals:
     void CLRegisterServerResp ( CHostAddress InetAddr, ESvrRegResult eStatus );
     void CLReqServerFeatures ( CHostAddress InetAddr );
     void CLReqWelcomeMessage ( CHostAddress InetAddr );
-    void CLTcpSupported ( CHostAddress InetAddr, int iID );
+    void CLTcpSupportedReceived ( CHostAddress InetAddr, int iID );
     void CLClientIDReceived ( CHostAddress InetAddr, int iChanID, CTcpConnection* pTcpConnection );
 };
