@@ -111,8 +111,8 @@
 #define PROTMESSID_CLM_REQ_SERVER_FEATURES    1020 // request server features
 #define PROTMESSID_CLM_WELCOME_MESSAGE        1021 // server welcome message
 #define PROTMESSID_CLM_REQ_WELCOME_MESSAGE    1022 // request server welcome message
-#define PROTMESSID_CLM_TCP_SUPPORTED          1019 // TCP is supported
-#define PROTMESSID_CLM_CLIENT_ID              1020 // Client ID associated with TCP connection
+#define PROTMESSID_CLM_TCP_SUPPORTED          1023 // TCP is supported
+#define PROTMESSID_CLM_CLIENT_ID              1024 // Client ID associated with TCP connection
 
 // special IDs
 #define PROTMESSID_SPECIAL_SPLIT_MESSAGE 2001 // a container for split messages
