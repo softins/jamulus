@@ -633,7 +633,8 @@ enum EFeatureSet
     FS_IS_LOGGING          = 9,
     FS_HAS_LICENCE         = 10,
     FS_HAS_GUI             = 11,
-    FS_RPC_ENABLED         = 12
+    FS_RPC_ENABLED         = 12,
+    FS_TCP_ENABLED         = 13
 };
 
 inline QString DirectoryTypeToString ( EDirectoryType eAddrType )

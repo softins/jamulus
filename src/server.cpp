@@ -534,6 +534,9 @@ void CServer::OnCLReqServerFeatures ( CHostAddress RecHostAddr )
     // Licence agreement required? (argument -L)
     iFeatures |= ( ( eLicenceType != LT_NO_LICENCE ) << FS_HAS_LICENCE );
 
+    // TCP enabled? (argument --enabletcp)
+    iFeatures |= ( bEnableTcp << FS_TCP_ENABLED );
+
     // TODO:
     // Running a GUI? (argument -n disables the GUI)
     // iFeatures |= (  << FS_HAS_GUI );
