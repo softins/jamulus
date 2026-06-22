@@ -321,7 +321,7 @@ protected:
     bool EvaluateCLRegisterServerMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
     bool EvaluateCLRegisterServerExMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
     bool EvaluateCLUnregisterServerMes ( const CHostAddress& InetAddr );
-    bool EvaluateCLServerListMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
+    bool EvaluateCLServerListMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData, CTcpConnection* pTcpConnection );
     bool EvaluateCLRedServerListMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData );
     bool EvaluateCLReqServerListMes ( const CHostAddress& InetAddr, CTcpConnection* pTcpConnection );
     bool EvaluateCLSendEmptyMesMes ( const CVector<uint8_t>& vecData );
@@ -392,7 +392,7 @@ signals:
                                       COSUtil::EOpSystemType eOSType,
                                       QString                strVersion );
     void CLUnregisterServerReceived ( CHostAddress InetAddr );
-    void CLServerListReceived ( CHostAddress InetAddr, CVector<CServerInfo> vecServerInfo );
+    void CLServerListReceived ( CHostAddress InetAddr, CVector<CServerInfo> vecServerInfo, CTcpConnection* pTcpConnection );
     void CLRedServerListReceived ( CHostAddress InetAddr, CVector<CServerInfo> vecServerInfo );
     void CLReqServerList ( CHostAddress InetAddr, CTcpConnection* pTcpConnection );
     void CLSendEmptyMes ( CHostAddress TargetInetAddr );

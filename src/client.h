@@ -302,15 +302,9 @@ public:
 
     void CreateCLServerListReqVerAndOSMes ( const CHostAddress& InetAddr ) { ConnLessProtocol.CreateCLReqVersionAndOSMes ( InetAddr ); }
 
-    void CreateCLServerListReqConnClientsListMes ( const CHostAddress& InetAddr, enum EProtoMode eProtoMode )
-    {
-        ConnLessProtocol.CreateCLReqConnClientsListMes ( InetAddr, eProtoMode );
-    }
+    void CreateCLServerListReqConnClientsListMes ( const CHostAddress& InetAddr );
 
-    void CreateCLReqServerListMes ( const CHostAddress& InetAddr, enum EProtoMode eProtoMode )
-    {
-        ConnLessProtocol.CreateCLReqServerListMes ( InetAddr, eProtoMode );
-    }
+    void CreateCLReqServerListMes ( const CHostAddress& InetAddr );
 
     int EstimatedOverallDelay ( const int iPingTimeMs );
 
@@ -455,8 +449,21 @@ protected:
     int    iCurPingTime;
 
     // for TCP protocol support
+
     bool bTcpSupported;
     int  iClientID;
+
+    // UDP/TCP mode for fetching client list - stored in a hash keyed by CHostAddress
+    enum EFetchMode
+    {
+        CFM_UDP_REQUEST, // set when sending request by UDP
+        CFM_UDP_RESULT,  // set when received a client list by UDP
+        CFM_TCP_REQUEST, // set when "TCP Supported" message arrives but client list has not arrived - re-request using TCP and remain in TCP mode
+        CFM_TCP_RESULT   // set when requested message received by TCP
+    };
+
+    QHash<CHostAddress, enum EFetchMode> pendingServerList;
+    QHash<CHostAddress, enum EFetchMode> pendingClientList;
 
 protected slots:
     void OnHandledSignal ( int sigNum );
@@ -495,6 +502,7 @@ protected slots:
     void OnCLChannelLevelListReceived ( CHostAddress InetAddr, CVector<uint16_t> vecLevelList );
     void OnConClientListMesReceived ( CVector<CChannelInfo> vecChanInfo );
     void OnCLConnClientsListMesReceived ( CHostAddress InetAddr, CVector<CChannelInfo> vecChanInfo, CTcpConnection* pTcpConnection );
+    void OnCLServerListReceived ( CHostAddress InetAddr, CVector<CServerInfo> vecServerInfo, CTcpConnection* pTcpConnection );
 
 public slots:
     void OnCLSendEmptyMes ( CHostAddress InetAddr, CTcpConnection* pTcpConnection )

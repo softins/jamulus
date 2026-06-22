@@ -221,16 +221,13 @@ public slots:
 
     void OnNewLocalInputText ( QString strChatText ) { pClient->CreateChatTextMes ( strChatText ); }
 
-    void OnReqServerListQuery ( CHostAddress InetAddr, enum EProtoMode eProtoMode ) { pClient->CreateCLReqServerListMes ( InetAddr, eProtoMode ); }
+    void OnReqServerListQuery ( CHostAddress InetAddr ) { pClient->CreateCLReqServerListMes ( InetAddr ); }
 
     void OnCreateCLServerListPingMes ( CHostAddress InetAddr ) { pClient->CreateCLServerListPingMes ( InetAddr ); }
 
     void OnCreateCLServerListReqVerAndOSMes ( CHostAddress InetAddr ) { pClient->CreateCLServerListReqVerAndOSMes ( InetAddr ); }
 
-    void OnCreateCLServerListReqConnClientsListMes ( CHostAddress InetAddr, enum EProtoMode eProtoMode )
-    {
-        pClient->CreateCLServerListReqConnClientsListMes ( InetAddr, eProtoMode );
-    }
+    void OnCreateCLServerListReqConnClientsListMes ( CHostAddress InetAddr ) { pClient->CreateCLServerListReqConnClientsListMes ( InetAddr ); }
 
     void OnCLServerListReceived ( CHostAddress InetAddr, CVector<CServerInfo> vecServerInfo )
     {
@@ -241,8 +238,6 @@ public slots:
     {
         ConnectDlg.SetServerList ( InetAddr, vecServerInfo, true );
     }
-
-    void OnCLTcpSupportedReceived ( CHostAddress InetAddr, int iID ) { ConnectDlg.SetTcpSupported ( InetAddr, iID ); }
 
     void OnCLConnClientsListMesReceived ( CHostAddress InetAddr, CVector<CChannelInfo> vecChanInfo )
     {
