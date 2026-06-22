@@ -827,6 +827,18 @@ public:
     quint16      iPort;
 };
 
+// support using a CHostAddress as a QHash key
+#if QT_VERSION < QT_VERSION_CHECK( 6, 0, 0 )
+using qhash_result_t = uint;
+#else
+using qhash_result_t = size_t;
+#endif
+inline qhash_result_t qHash ( const CHostAddress& addr, qhash_result_t seed = 0 )
+{
+    seed = qHash ( addr.InetAddr, seed );
+    return qHash ( addr.iPort, seed );
+}
+
 // Instrument picture data base ------------------------------------------------
 // this is a pure static class
 class CInstPictures
