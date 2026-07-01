@@ -759,3 +759,26 @@ void CChannel::CreateConClientListMes ( const CVector<CChannelInfo>& vecChanInfo
         Protocol.CreateConClientListMes ( vecChanInfo );
     }
 }
+
+void CChannel::CreateChatTextMes ( const QString& strChatText )
+{
+    qDebug() << "- sending chat text via UDP";
+
+    Protocol.CreateChatTextMes ( strChatText );
+}
+
+void CChannel::CreateChatTextMes ( const QString& strChatText, CProtocol& ConnLessProtocol )
+{
+    if ( pTcpConnection )
+    {
+        qDebug() << "- sending chat text via TCP";
+
+        ConnLessProtocol.CreateCLChatTextMes ( InetAddr, strChatText, pTcpConnection );
+    }
+    else
+    {
+        qDebug() << "- sending chat text via UDP";
+
+        Protocol.CreateChatTextMes ( strChatText );
+    }
+}

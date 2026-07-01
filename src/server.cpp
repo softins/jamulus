@@ -469,7 +469,7 @@ void CServer::OnNewConnection ( int iChID, int iTotChans, CHostAddress RecHostAd
             // the client which just connected to the server
             const QString strWelcomeMessageFormated = WELCOME_MESSAGE_PREFIX + strWelcomeMessage;
 
-            vecChannels[iChID].CreateChatTextMes ( strWelcomeMessageFormated );
+            vecChannels[iChID].CreateChatTextMes ( strWelcomeMessageFormated, ConnLessProtocol );
         }
     }
 
@@ -1436,7 +1436,7 @@ void CServer::SendChatTextToAllConChannels ( const QString& strChatText )
     {
         if ( vecChannels[i].IsConnected() )
         {
-            vecChannels[i].CreateChatTextMes ( strChatText );
+            vecChannels[i].CreateChatTextMes ( strChatText, ConnLessProtocol );
         }
     }
 }
@@ -1446,7 +1446,7 @@ void CServer::SendChatTextToConChannel ( const int iCurChanID, const QString& st
     if ( MathUtils::InRange<int> ( iCurChanID, 0, iMaxNumChannels - 1 ) && vecChannels[iCurChanID].IsConnected() )
     {
         // send message
-        vecChannels[iCurChanID].CreateChatTextMes ( strChatText );
+        vecChannels[iCurChanID].CreateChatTextMes ( strChatText, ConnLessProtocol );
     }
 }
 

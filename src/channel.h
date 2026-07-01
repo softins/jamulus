@@ -179,13 +179,15 @@ public:
     void CreateReqSplitMessSupportMes() { Protocol.CreateReqSplitMessSupportMes(); }
     void CreateReqJitBufMes() { Protocol.CreateReqJitBufMes(); }
     void CreateReqConnClientsList() { Protocol.CreateReqConnClientsList(); }
-    void CreateChatTextMes ( const QString& strChatText ) { Protocol.CreateChatTextMes ( strChatText ); }
     void CreateLicReqMes ( const ELicenceType eLicenceType ) { Protocol.CreateLicenceRequiredMes ( eLicenceType ); }
 
     //### TODO: BEGIN ###//
     // needed for compatibility to old servers >= 3.4.6 and <= 3.5.12
     void CreateReqChannelLevelListMes() { Protocol.CreateReqChannelLevelListMes(); }
     //### TODO: END ###//
+
+    void CreateChatTextMes ( const QString& strChatText );
+    void CreateChatTextMes ( const QString& strChatText, CProtocol& ConnLessProtocol );
 
     void CreateConClientListMes ( const CVector<CChannelInfo>& vecChanInfo, CProtocol& ConnLessProtocol );
 

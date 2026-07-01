@@ -511,6 +511,15 @@ CONNECTION LESS MESSAGES
 
     the ID informs the server with which channel to associate the TCP connection
 
+
+- PROTMESSID_CLM_CHAT_TEXT: Chat text
+
+    +------------------+----------------------+
+    | 2 bytes number n | n bytes UTF-8 string |
+    +------------------+----------------------+
+
+    - "UTF-8 string": the chat message (HTML from server to client)
+
 */
 
 #include "protocol.h"
@@ -1021,6 +1030,10 @@ void CProtocol::ParseConnectionLessMessageBody ( const CVector<uint8_t>& vecbyMe
 
     case PROTMESSID_CLM_CLIENT_ID:
         EvaluateCLClientIDMes ( InetAddr, vecbyMesBodyData, pTcpConnection );
+        break;
+
+    case PROTMESSID_CLM_CHAT_TEXT:
+        EvaluateCLChatTextMes ( InetAddr, vecbyMesBodyData, pTcpConnection );
         break;
     }
 }
@@ -2799,6 +2812,50 @@ bool CProtocol::EvaluateCLClientIDMes ( const CHostAddress& InetAddr, const CVec
 
     // invoke message action
     emit CLClientIDReceived ( InetAddr, iCurID, pTcpConnection );
+
+    return false; // no error
+}
+
+void CProtocol::CreateCLChatTextMes ( const CHostAddress& InetAddr, const QString strChatText, CTcpConnection* pTcpConnection )
+{
+    int iPos = 0; // init position pointer
+
+    // convert chat text string to utf-8
+    const QByteArray strUTF8ChatText = strChatText.toUtf8();
+
+    const int iStrUTF8Len = strUTF8ChatText.size(); // get utf-8 str. size / string
+
+    // size of message body
+    const int iEntrLen = 2 + iStrUTF8Len; // utf-8 str. size / string
+
+    // build data vector
+    CVector<uint8_t> vecData ( iEntrLen );
+
+    // chat text
+    PutStringUTF8OnStream ( vecData, iPos, strUTF8ChatText );
+
+    CreateAndImmSendConLessMessage ( PROTMESSID_CLM_CHAT_TEXT, vecData, InetAddr, pTcpConnection );
+}
+
+bool CProtocol::EvaluateCLChatTextMes ( const CHostAddress& InetAddr, const CVector<uint8_t>& vecData, CTcpConnection* pTcpConnection )
+{
+    int iPos = 0; // init position pointer
+
+    // chat text
+    QString strChatText;
+    if ( GetStringFromStream ( vecData, iPos, MAX_LEN_CHAT_TEXT_PLUS_HTML, strChatText ) )
+    {
+        return true; // return error code
+    }
+
+    // check size: all data is read, the position must now be at the end
+    if ( iPos != vecData.Size() )
+    {
+        return true; // return error code
+    }
+
+    // invoke message action
+    emit CLChatTextReceived ( InetAddr, strChatText, pTcpConnection );
 
     return false; // no error
 }

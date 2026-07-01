@@ -171,6 +171,8 @@ CClient::CClient ( const quint16  iPortNumber,
 
     QObject::connect ( &ConnLessProtocol, &CProtocol::CLTcpSupportedReceived, this, &CClient::OnCLTcpSupportedReceived );
 
+    QObject::connect ( &ConnLessProtocol, &CProtocol::CLChatTextReceived, this, &CClient::OnCLChatTextReceived );
+
     QObject::connect ( &ConnLessProtocol, &CProtocol::CLConnClientsListMesReceived, this, &CClient::OnCLConnClientsListMesReceived );
 
     QObject::connect ( &ConnLessProtocol, &CProtocol::CLPingReceived, this, &CClient::OnCLPingReceived );
@@ -1248,6 +1250,18 @@ void CClient::OnCLServerListReceived ( CHostAddress InetAddr, CVector<CServerInf
     }
     qDebug() << "- server list received";
     emit CLServerListReceived ( InetAddr, vecServerInfo );
+}
+
+void CClient::OnCLChatTextReceived ( CHostAddress InetAddr, QString strChatText, CTcpConnection* pTcpConnection )
+{
+    Q_UNUSED ( InetAddr );
+
+    // check we are receiving for a connected session
+    if ( pTcpConnection && pTcpConnection->IsSession() )
+    {
+        qDebug() << "- chat text received via TCP";
+        emit ChatTextReceived ( strChatText );
+    }
 }
 
 void CClient::OnCLConnClientsListMesReceived ( CHostAddress InetAddr, CVector<CChannelInfo> vecChanInfo, CTcpConnection* pTcpConnection )

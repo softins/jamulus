@@ -503,6 +503,7 @@ protected slots:
     void OnConClientListMesReceived ( CVector<CChannelInfo> vecChanInfo );
     void OnCLConnClientsListMesReceived ( CHostAddress InetAddr, CVector<CChannelInfo> vecChanInfo, CTcpConnection* pTcpConnection );
     void OnCLServerListReceived ( CHostAddress InetAddr, CVector<CServerInfo> vecServerInfo, CTcpConnection* pTcpConnection );
+    void OnCLChatTextReceived ( CHostAddress InetAddr, QString strChatText, CTcpConnection* pTcpConnection );
 
 public slots:
     void OnCLSendEmptyMes ( CHostAddress InetAddr, CTcpConnection* pTcpConnection )
