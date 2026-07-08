@@ -133,6 +133,7 @@ int main ( int argc, char** argv )
     QString      strServerListFileName       = "";
     QString      strServerInfo               = "";
     QString      strServerPublicIP           = "";
+    QString      strServerPublicIP6          = "";
     QString      strServerBindIP             = "";
     QString      strServerBindIP6            = "";
     QString      strServerListFilter         = "";
@@ -395,6 +396,21 @@ int main ( int argc, char** argv )
             qInfo() << qUtf8Printable ( QString ( "- server public IP: %1" ).arg ( strServerPublicIP ) );
             CommandLineOptions << "--serverpublicip";
             ServerOnlyOptions << "--serverpublicip";
+            continue;
+        }
+
+        // Server Public IPv6 ----------------------------------------------------
+        if ( GetStringArgument ( argc,
+                                 argv,
+                                 i,
+                                 "--serverpublicip6", // no short form
+                                 "--serverpublicip6",
+                                 strArgument ) )
+        {
+            strServerPublicIP6 = strArgument;
+            qInfo() << qUtf8Printable ( QString ( "- server public IPv6: %1" ).arg ( strServerPublicIP6 ) );
+            CommandLineOptions << "--serverpublicip6";
+            ServerOnlyOptions << "--serverpublicip6";
             continue;
         }
 
@@ -820,6 +836,24 @@ int main ( int argc, char** argv )
                     }
                 }
             }
+
+            if ( !strServerPublicIP6.isEmpty() )
+            {
+                if ( strDirectoryAddress.isEmpty() )
+                {
+                    qWarning() << "Server Public IPv6 will only take effect when registering a server with a directory.";
+                    strServerPublicIP6 = "";
+                }
+                else
+                {
+                    QHostAddress InetAddr ( strServerPublicIP6 );
+                    if ( InetAddr.protocol() != QAbstractSocket::IPv6Protocol )
+                    {
+                        qWarning() << "Server Public IPv6 is invalid. Only plain IPv6 addresses are supported.";
+                        strServerPublicIP6 = "";
+                    }
+                }
+            }
         }
 
         if ( !strServerBindIP.isEmpty() )
@@ -1165,6 +1199,9 @@ QString UsageArguments ( char** argv )
            "      --serverpublicip    public IP address for this Server.  Needed when\n"
            "                          registering with a server list hosted\n"
            "                          behind the same NAT\n"
+           "      --serverpublicip6   public IPv6 address for this Server.  Needed when\n"
+           "                          registering with a server list hosted\n"
+           "                          behind the same NAT (very rare with IPv6)\n"
            "  -P, --delaypan          start with delay panning enabled\n"
            "  -R, --recording         set server recording directory; server will record when a session is active by default\n"
            "      --norecord          set server not to record by default when recording is configured\n"
