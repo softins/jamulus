@@ -355,6 +355,7 @@ jobs:
         uses:                       github/codeql-action/init@v4
         with:
           languages: 'cpp'
+          build-mode: manual    # manual for full checks, none for static code analysis only
 
       - name:                       Build for ${{ matrix.config.config_name }}
         id:                         build
