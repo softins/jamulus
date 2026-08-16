@@ -29,8 +29,12 @@ contains(VERSION, .*dev.*) {
 CONFIG += qt \
     thread \
     lrelease \
-    embed_translations \
-    debug_and_release
+    embed_translations
+
+!android {
+    CONFIG += debug_and_release
+}
+
 
 QT += network \
     xml \
@@ -1211,7 +1215,7 @@ QMAKE_EXTRA_TARGETS += clang_format
 # dependencies such as libs/ASIOSDK2.
 android {
     for (abi, ANDROID_ABIS) {
-        DISTCLEAN_DIRS += debug-$${abi} release-$${abi}
+        DISTCLEAN_DIRS += $${abi}
     }
     DISTCLEAN_DIRS += .qm
 } else {
