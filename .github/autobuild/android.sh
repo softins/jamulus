@@ -149,6 +149,8 @@ build_app_as_apk() {
 pass_artifact_to_job() {
     mkdir deploy
     local artifact="jamulus_${JAMULUS_BUILD_VERSION}_android.apk"
+    echo "Contents of ${BUILD_DIR}:"
+    ls -lRA ${BUILD_DIR}
     echo "Moving ${BUILD_DIR}/build/outputs/apk/debug/build-debug.apk to deploy/${artifact}"
     mv "./${BUILD_DIR}/build/outputs/apk/debug/build-debug.apk" "./deploy/${artifact}"
     echo "artifact_1=${artifact}" >> "$GITHUB_OUTPUT"
