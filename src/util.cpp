@@ -1157,7 +1157,7 @@ void NetworkUtil::hostResolved ( const QHostInfo& info, quint16 port )
     }
 }
 
-bool NetworkUtil::resolveHostnameAndPort ( const QString& strHostname,
+static bool resolveHostnameAndPort ( const QString& strHostname,
                                            const quint16  port,
                                            const bool     bIPv6Available,
                                            QObject*       context,

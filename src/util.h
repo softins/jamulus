@@ -1117,11 +1117,6 @@ public:
     static bool         IsPrivateNetworkIP ( const QHostAddress& qhAddr );
 
     static void hostResolved ( const QHostInfo& info, quint16 port );
-    static bool resolveHostnameAndPort ( const QString& strHostname,
-                                         const quint16  port,
-                                         const bool     bIPv6Available,
-                                         QObject*       context,
-                                         void ( *slot ) ( const QHostInfo& info, quint16 port ) );
     static bool resolveAddress ( const QString& strAddress,
                                  const bool     bIPv6Available,
                                  QObject*       context,
