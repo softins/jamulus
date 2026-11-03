@@ -622,6 +622,11 @@ void CClient::SetRemoteChanPan ( const int iId, const float fPan )
 bool CClient::SetServerAddr ( QString strNAddr )
 {
     CHostAddress HostAddress;
+
+    if ( NetworkUtil::resolveHostAndPort ( strNAddr, this, &NetworkUtil::hostResolved ) )
+    {
+    }
+
     if ( NetworkUtil::ParseNetworkAddress ( strNAddr, HostAddress, bIPv6Available ) )
     {
         // apply address to the channel

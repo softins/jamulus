@@ -1115,6 +1115,11 @@ public:
     static CHostAddress GetLocalAddress6();
     static QString      GetDirectoryAddress ( const EDirectoryType eDirectoryType, const QString& strDirectoryAddress );
     static bool         IsPrivateNetworkIP ( const QHostAddress& qhAddr );
+
+    static void hostResolved ( const QHostInfo& info, quint16 port );
+    static bool resolveHostAndPort ( const QString& strAddress, QObject *context, void (*slot)( const QHostInfo& info, quint16 port ));
+    template<typename Functor>
+    static bool resolveHostAndPort ( const QString& strAddress, QObject *context, Functor functor );
 };
 
 // Operating system utility functions ------------------------------------------

@@ -1139,6 +1139,32 @@ bool NetworkUtil::IsPrivateNetworkIP ( const QHostAddress& qhAddr )
     return false;
 }
 
+// Handle resolved address
+void NetworkUtil::hostResolved ( const QHostInfo& info, quint16 port )
+{
+    qDebug() << Q_FUNC_INFO /* << "info:" << info */ << "port:" << port;
+
+    foreach ( const QHostAddress HostAddr, info.addresses() )
+    {
+        qDebug() << qUtf8Printable ( QString ( "Resolved network address to %1 for proto %2" ) .arg ( HostAddr.toString() ) .arg ( HostAddr.protocol() ) );
+    }
+}
+
+bool NetworkUtil::resolveHostAndPort ( const QString& strAddress, QObject *context, void (*slot)( const QHostInfo& info, quint16 port ))
+{
+    qDebug() << Q_FUNC_INFO << "str:" << strAddress << "context:" << context << "slot:" << slot;
+
+    return true;
+}
+
+template<typename Functor>
+bool NetworkUtil::resolveHostAndPort ( const QString& strAddress, QObject *context, Functor functor )
+{
+    qDebug() << Q_FUNC_INFO << "str:" << strAddress << "context:" << context << "functor:" << functor;
+
+    return true;
+}
+
 // CHostAddress methods
 // Compare() - compare two CHostAddress objects, and return an ordering between them:
 // 0 - they are equal
