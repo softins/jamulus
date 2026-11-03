@@ -1167,6 +1167,8 @@ bool NetworkUtil::resolveHostnameAndPort ( const QString& strHostname,
 
     qDebug() << Q_FUNC_INFO << "strHostname:" << strHostname << "port:" << port << "context:" << context << "slot:" << slot;
 
+    QHostInfo::lookupHost ( strHostname, context, [slot, port] ( const QHostInfo& info ) { slot ( info, port ); } );
+
     return false;
 }
 
