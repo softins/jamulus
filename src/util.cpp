@@ -1287,28 +1287,32 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
         QObject::connect ( dns, &QDnsLookup::finished, context, [strHost, iNetPort, context, dns, slot]() {
             qDebug() << Q_FUNC_INFO << "context:" << context << "dns:" << dns << "slot:" << slot;
 
-            if ( dns->error() != QDnsLookup::NoError )
+            if ( dns->error() == QDnsLookup::NoError )
+            {
+                const QList<QDnsServiceRecord> records = dns->serviceRecords();
+                if ( records.length() == 1 )
+                {
+                    QDnsServiceRecord record = records.first();
+                    qDebug() << "SRV target =" << record.target() << "port =" << record.port();
+
+                    resolveHostnameAndPort ( record.target(), record.port(), context, slot );
+                    dns->deleteLater();
+                    return;
+                }
+                else
+                {
+                    qWarning() << "SRV returned" << records.length() << "records";
+                }
+            }
+            else
             {
                 qWarning() << "DNS error" << dns->error() << dns->errorString();
-                dns->deleteLater();
-                resolveHostnameAndPort ( strHost, iNetPort, context, slot );
-                return;
             }
 
-            const QList<QDnsServiceRecord> records = dns->serviceRecords();
             dns->deleteLater();
-            if ( records.length() != 1 )
-            {
-                qWarning().noquote() << QString ( "SRV returned %1 records" ).arg ( records.length() );
-                // if none, need to try normal lookup
-                resolveHostnameAndPort ( strHost, iNetPort, context, slot );
-                return;
-            }
 
-            QDnsServiceRecord record = records.first();
-            qDebug() << "SRV target =" << record.target() << "port =" << record.port();
-
-            resolveHostnameAndPort ( record.target(), record.port(), context, slot );
+            // SRV failed - lookup host directly
+            resolveHostnameAndPort ( strHost, iNetPort, context, slot );
         } );
 
         dns->lookup();
