@@ -623,8 +623,9 @@ bool CClient::SetServerAddr ( QString strNAddr )
 {
     CHostAddress HostAddress;
 
-    if ( NetworkUtil::resolveHostAndPort ( strNAddr, this, &NetworkUtil::hostResolved ) )
+    if ( NetworkUtil::resolveAddress ( strNAddr, bIPv6Available, this, &NetworkUtil::hostResolved, true, true ) )
     {
+        qDebug() << "resolveAddress() returned true";
     }
 
     if ( NetworkUtil::ParseNetworkAddress ( strNAddr, HostAddress, bIPv6Available ) )

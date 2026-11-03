@@ -1117,9 +1117,24 @@ public:
     static bool         IsPrivateNetworkIP ( const QHostAddress& qhAddr );
 
     static void hostResolved ( const QHostInfo& info, quint16 port );
-    static bool resolveHostAndPort ( const QString& strAddress, QObject *context, void (*slot)( const QHostInfo& info, quint16 port ));
+    static bool resolveHostnameAndPort ( const QString& strHostname,
+                                         const quint16  port,
+                                         const bool     bIPv6Available,
+                                         QObject*       context,
+                                         void ( *slot ) ( const QHostInfo& info, quint16 port ) );
+    static bool resolveAddress ( const QString& strAddress,
+                                 const bool     bIPv6Available,
+                                 QObject*       context,
+                                 void ( *slot ) ( const QHostInfo& info, quint16 port ),
+                                 const bool allowHostname = false,
+                                 const bool allowSrv      = false );
     template<typename Functor>
-    static bool resolveHostAndPort ( const QString& strAddress, QObject *context, Functor functor );
+    static bool resolveAddress ( const QString& strAddress,
+                                 const bool     bIPv6Available,
+                                 QObject*       context,
+                                 Functor        functor,
+                                 const bool     allowHostname = false,
+                                 const bool     allowSrv      = false );
 };
 
 // Operating system utility functions ------------------------------------------

@@ -1144,21 +1144,193 @@ void NetworkUtil::hostResolved ( const QHostInfo& info, quint16 port )
 {
     qDebug() << Q_FUNC_INFO /* << "info:" << info */ << "port:" << port;
 
-    foreach ( const QHostAddress HostAddr, info.addresses() )
+    if ( info.error() != QHostInfo::NoError )
     {
-        qDebug() << qUtf8Printable ( QString ( "Resolved network address to %1 for proto %2" ) .arg ( HostAddr.toString() ) .arg ( HostAddr.protocol() ) );
+        qDebug() << "Lookup failed:" << info.errorString();
+        return;
+    }
+
+    foreach ( const QHostAddress& HostAddr, info.addresses() )
+    {
+        qDebug() << qUtf8Printable (
+            QString ( "Resolved network address to %1 for proto %2" ).arg ( HostAddr.toString() ).arg ( HostAddr.protocol() ) );
     }
 }
 
-bool NetworkUtil::resolveHostAndPort ( const QString& strAddress, QObject *context, void (*slot)( const QHostInfo& info, quint16 port ))
+bool NetworkUtil::resolveHostnameAndPort ( const QString& strHostname,
+                                           const quint16  port,
+                                           const bool     bIPv6Available,
+                                           QObject*       context,
+                                           void ( *slot ) ( const QHostInfo& info, quint16 port ) )
+{
+    Q_UNUSED ( bIPv6Available );
+
+    qDebug() << Q_FUNC_INFO << "strHostname:" << strHostname << "port:" << port << "context:" << context << "slot:" << slot;
+
+    return false;
+}
+
+bool NetworkUtil::resolveAddress ( const QString& strAddress,
+                                   const bool     bIPv6Available,
+                                   QObject*       context,
+                                   void ( *slot ) ( const QHostInfo& info, quint16 port ),
+                                   const bool allowHostname,
+                                   const bool allowSrv )
 {
     qDebug() << Q_FUNC_INFO << "str:" << strAddress << "context:" << context << "slot:" << slot;
+
+    QHostAddress InetAddr;
+    quint16      iNetPort = DEFAULT_PORT_NUMBER;
+    QString      strHost;
+
+    // qInfo() << qUtf8Printable ( QString ( "Parsing network address %1" ).arg ( strAddress ) );
+
+    // init requested host address with invalid address first
+    CHostAddress HostAddress;
+
+    // Allow the following address formats:
+    // [addr4or6]
+    // [addr4or6]:port
+    // addr4
+    // addr4:port
+    // hostname
+    // hostname:port
+    // (where addr4or6 is a literal IPv4 or IPv6 address, and addr4 is a literal IPv4 address
+
+    bool               bLiteralAddr = false;
+    QRegularExpression rx1 ( "^\\[([^]]*)\\](?::(\\d+))?$" ); // [addr4or6] or [addr4or6]:port
+    QRegularExpression rx2 ( "^([^:]*)(?::(\\d+))?$" );       // addr4 or addr4:port or host or host:port
+
+    QString strPort;
+
+    QRegularExpressionMatch rx1match = rx1.match ( strAddress );
+    QRegularExpressionMatch rx2match = rx2.match ( strAddress );
+
+    // parse input address with rx1 and rx2 in turn, capturing address/host and port
+    if ( rx1match.capturedStart() == 0 )
+    {
+        // literal address within []
+        strHost      = rx1match.captured ( 1 );
+        strPort      = rx1match.captured ( 2 );
+        bLiteralAddr = true; // don't allow hostname within []
+    }
+    else if ( rx2match.capturedStart() == 0 )
+    {
+        // hostname or IPv4 address
+        strHost = rx2match.captured ( 1 );
+        strPort = rx2match.captured ( 2 );
+    }
+    else
+    {
+        // invalid format
+        qDebug() << "Invalid address format";
+        return false;
+    }
+
+    if ( !strPort.isEmpty() )
+    {
+        // a port number was given: extract port number
+        unsigned int port = strPort.toInt();
+
+        if ( port >= 65536 )
+        {
+            // invalid port number
+            qDebug() << "Invalid port number specified";
+            return false;
+        }
+
+        iNetPort = port;
+    }
+
+    // first try if this is an IP number an can directly applied to QHostAddress
+    if ( InetAddr.setAddress ( strHost ) )
+    {
+        if ( !bIPv6Available && InetAddr.protocol() == QAbstractSocket::IPv6Protocol )
+        {
+            // do not allow IPv6 addresses if not enabled
+            qDebug() << "IPv6 addresses disabled";
+            return false;
+        }
+
+        QHostInfo info;
+        info.setAddresses ( { InetAddr } );
+        info.setError ( QHostInfo::NoError );
+
+        // call the slot directly with IP and port
+        QMetaObject::invokeMethod (
+            context,
+            [slot, info, iNetPort]() { slot ( info, iNetPort ); },
+            Qt::QueuedConnection );
+
+        return true;
+    }
+    else if ( bLiteralAddr )
+    {
+        // it was not a valid IP address. If literal required due to [], return as invalid
+        qDebug() << "Invalid literal IP address";
+        return false; // invalid address
+    }
+    else if ( !allowHostname )
+    {
+        // not allowing hostname lookup
+        qDebug() << "Hostname lookup disabled";
+        return false;
+    }
+    else if ( allowSrv && strPort.isEmpty() )
+    {
+        qDebug() << "Looking up SRV record for" << strHost;
+
+        // check for SRV record to obtain hostname and port
+        QDnsLookup* dns = new QDnsLookup();
+        dns->setType ( QDnsLookup::SRV );
+        dns->setName ( QString ( "_jamulus._udp.%1" ).arg ( strHost ) );
+
+        QObject::connect ( dns, &QDnsLookup::finished, context, [strHost, iNetPort, bIPv6Available, context, dns, slot]() {
+            qDebug() << Q_FUNC_INFO << "context:" << context << "dns:" << dns << "slot:" << slot;
+
+            if ( dns->error() != QDnsLookup::NoError )
+            {
+                qWarning() << "DNS error" << dns->error() << dns->errorString();
+                dns->deleteLater();
+                resolveHostnameAndPort ( strHost, iNetPort, bIPv6Available, context, slot );
+                return;
+            }
+
+            const QList<QDnsServiceRecord> records = dns->serviceRecords();
+            dns->deleteLater();
+            if ( records.length() != 1 )
+            {
+                qWarning().noquote() << QString ( "SRV returned %1 records" ).arg ( records.length() );
+                // if none, need to try normal lookup
+                resolveHostnameAndPort ( strHost, iNetPort, bIPv6Available, context, slot );
+                return;
+            }
+
+            QDnsServiceRecord record = records.first();
+            qDebug() << "SRV target =" << record.target() << "port =" << record.port();
+
+            resolveHostnameAndPort ( record.target(), record.port(), bIPv6Available, context, slot );
+        } );
+
+        dns->lookup();
+
+        return true;
+    }
+    else
+    {
+        return resolveHostnameAndPort ( strHost, iNetPort, bIPv6Available, context, slot );
+    }
 
     return true;
 }
 
 template<typename Functor>
-bool NetworkUtil::resolveHostAndPort ( const QString& strAddress, QObject *context, Functor functor )
+bool NetworkUtil::resolveAddress ( const QString& strAddress,
+                                   const bool     bIPv6Available,
+                                   QObject*       context,
+                                   Functor        functor,
+                                   const bool     allowHostname,
+                                   const bool     allowSrv )
 {
     qDebug() << Q_FUNC_INFO << "str:" << strAddress << "context:" << context << "functor:" << functor;
 
