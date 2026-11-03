@@ -1159,12 +1159,9 @@ void NetworkUtil::hostResolved ( const QHostInfo& info, quint16 port )
 
 static bool resolveHostnameAndPort ( const QString& strHostname,
                                            const quint16  port,
-                                           const bool     bIPv6Available,
                                            QObject*       context,
                                            void ( *slot ) ( const QHostInfo& info, quint16 port ) )
 {
-    Q_UNUSED ( bIPv6Available );
-
     qDebug() << Q_FUNC_INFO << "strHostname:" << strHostname << "port:" << port << "context:" << context << "slot:" << slot;
 
     QHostInfo::lookupHost ( strHostname, context, [slot, port] ( const QHostInfo& info ) { slot ( info, port ); } );
@@ -1287,14 +1284,14 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
         dns->setType ( QDnsLookup::SRV );
         dns->setName ( QString ( "_jamulus._udp.%1" ).arg ( strHost ) );
 
-        QObject::connect ( dns, &QDnsLookup::finished, context, [strHost, iNetPort, bIPv6Available, context, dns, slot]() {
+        QObject::connect ( dns, &QDnsLookup::finished, context, [strHost, iNetPort, context, dns, slot]() {
             qDebug() << Q_FUNC_INFO << "context:" << context << "dns:" << dns << "slot:" << slot;
 
             if ( dns->error() != QDnsLookup::NoError )
             {
                 qWarning() << "DNS error" << dns->error() << dns->errorString();
                 dns->deleteLater();
-                resolveHostnameAndPort ( strHost, iNetPort, bIPv6Available, context, slot );
+                resolveHostnameAndPort ( strHost, iNetPort, context, slot );
                 return;
             }
 
@@ -1304,14 +1301,14 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
             {
                 qWarning().noquote() << QString ( "SRV returned %1 records" ).arg ( records.length() );
                 // if none, need to try normal lookup
-                resolveHostnameAndPort ( strHost, iNetPort, bIPv6Available, context, slot );
+                resolveHostnameAndPort ( strHost, iNetPort, context, slot );
                 return;
             }
 
             QDnsServiceRecord record = records.first();
             qDebug() << "SRV target =" << record.target() << "port =" << record.port();
 
-            resolveHostnameAndPort ( record.target(), record.port(), bIPv6Available, context, slot );
+            resolveHostnameAndPort ( record.target(), record.port(), context, slot );
         } );
 
         dns->lookup();
@@ -1320,7 +1317,7 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
     }
     else
     {
-        return resolveHostnameAndPort ( strHost, iNetPort, bIPv6Available, context, slot );
+        return resolveHostnameAndPort ( strHost, iNetPort, context, slot );
     }
 
     return true;
