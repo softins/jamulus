@@ -1150,23 +1150,21 @@ void NetworkUtil::hostResolved ( const QHostInfo& info, quint16 port )
         return;
     }
 
-    foreach ( const QHostAddress& HostAddr, info.addresses() )
+    for ( const QHostAddress& HostAddr : info.addresses() )
     {
         qDebug() << qUtf8Printable (
             QString ( "Resolved network address to %1 for proto %2" ).arg ( HostAddr.toString() ).arg ( HostAddr.protocol() ) );
     }
 }
 
-static bool resolveHostnameAndPort ( const QString& strHostname,
-                                           const quint16  port,
-                                           QObject*       context,
-                                           void ( *slot ) ( const QHostInfo& info, quint16 port ) )
+static void resolveHostname ( const QString& strHostname,
+                              const quint16  port,
+                              QObject*       context,
+                              void ( *slot ) ( const QHostInfo& info, quint16 port ) )
 {
     qDebug() << Q_FUNC_INFO << "strHostname:" << strHostname << "port:" << port << "context:" << context << "slot:" << slot;
 
     QHostInfo::lookupHost ( strHostname, context, [slot, port] ( const QHostInfo& info ) { slot ( info, port ); } );
-
-    return false;
 }
 
 bool NetworkUtil::resolveAddress ( const QString& strAddress,
@@ -1184,9 +1182,6 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
 
     // qInfo() << qUtf8Printable ( QString ( "Parsing network address %1" ).arg ( strAddress ) );
 
-    // init requested host address with invalid address first
-    CHostAddress HostAddress;
-
     // Allow the following address formats:
     // [addr4or6]
     // [addr4or6]:port
@@ -1196,9 +1191,9 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
     // hostname:port
     // (where addr4or6 is a literal IPv4 or IPv6 address, and addr4 is a literal IPv4 address
 
-    bool               bLiteralAddr = false;
-    QRegularExpression rx1 ( "^\\[([^]]*)\\](?::(\\d+))?$" ); // [addr4or6] or [addr4or6]:port
-    QRegularExpression rx2 ( "^([^:]*)(?::(\\d+))?$" );       // addr4 or addr4:port or host or host:port
+    bool                            bLiteralAddr = false;
+    static const QRegularExpression rx1 ( "^\\[([^]]+)\\](?::(\\d+))?$" ); // [addr4or6] or [addr4or6]:port
+    static const QRegularExpression rx2 ( "^([^:]+)(?::(\\d+))?$" );       // addr4 or addr4:port or host or host:port
 
     QString strPort;
 
@@ -1206,14 +1201,14 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
     QRegularExpressionMatch rx2match = rx2.match ( strAddress );
 
     // parse input address with rx1 and rx2 in turn, capturing address/host and port
-    if ( rx1match.capturedStart() == 0 )
+    if ( rx1match.hasMatch() )
     {
         // literal address within []
         strHost      = rx1match.captured ( 1 );
         strPort      = rx1match.captured ( 2 );
         bLiteralAddr = true; // don't allow hostname within []
     }
-    else if ( rx2match.capturedStart() == 0 )
+    else if ( rx2match.hasMatch() )
     {
         // hostname or IPv4 address
         strHost = rx2match.captured ( 1 );
@@ -1229,19 +1224,20 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
     if ( !strPort.isEmpty() )
     {
         // a port number was given: extract port number
-        unsigned int port = strPort.toInt();
+        bool         ok;
+        unsigned int port = strPort.toUInt ( &ok );
 
-        if ( port >= 65536 )
+        if ( !ok || port == 0 || port >= 65536 )
         {
             // invalid port number
             qDebug() << "Invalid port number specified";
             return false;
         }
 
-        iNetPort = port;
+        iNetPort = static_cast<quint16> ( port );
     }
 
-    // first try if this is an IP number an can directly applied to QHostAddress
+    // first try if this is an IP number and can directly applied to QHostAddress
     if ( InetAddr.setAddress ( strHost ) )
     {
         if ( !bIPv6Available && InetAddr.protocol() == QAbstractSocket::IPv6Protocol )
@@ -1252,6 +1248,7 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
         }
 
         QHostInfo info;
+        info.setHostName ( strHost );
         info.setAddresses ( { InetAddr } );
         info.setError ( QHostInfo::NoError );
 
@@ -1275,12 +1272,13 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
         qDebug() << "Hostname lookup disabled";
         return false;
     }
+#ifndef DISABLE_SRV_DNS
     else if ( allowSrv && strPort.isEmpty() )
     {
         qDebug() << "Looking up SRV record for" << strHost;
 
         // check for SRV record to obtain hostname and port
-        QDnsLookup* dns = new QDnsLookup();
+        QDnsLookup* dns = new QDnsLookup ( context );
         dns->setType ( QDnsLookup::SRV );
         dns->setName ( QString ( "_jamulus._udp.%1" ).arg ( strHost ) );
 
@@ -1295,8 +1293,29 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
                     QDnsServiceRecord record = records.first();
                     qDebug() << "SRV target =" << record.target() << "port =" << record.port();
 
-                    resolveHostnameAndPort ( record.target(), record.port(), context, slot );
                     dns->deleteLater();
+
+                    if ( record.target().isEmpty() || record.target() == "." )
+                    {
+                        // RFC2782 says that "." indicates that the service is not available.
+                        // Qt strips the trailing dot, which is why we check for empty string
+                        // as well. Therefore, the "." part might be redundant, but this would
+                        // need further testing to confirm.
+
+                        // SRV says unavailable - create a QHostInfo to pass error to the slot
+                        QHostInfo info;
+                        info.setHostName ( strHost );
+                        info.setError ( QHostInfo::HostNotFound );
+                        info.setErrorString ( "SRV record indicates service unavailable" );
+
+                        QMetaObject::invokeMethod (
+                            context,
+                            [slot, info, iNetPort]() { slot ( info, iNetPort ); },
+                            Qt::QueuedConnection );
+                        return;
+                    }
+
+                    resolveHostname ( record.target(), record.port(), context, slot );
                     return;
                 }
                 else
@@ -1312,17 +1331,16 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
             dns->deleteLater();
 
             // SRV failed - lookup host directly
-            resolveHostnameAndPort ( strHost, iNetPort, context, slot );
+            resolveHostname ( strHost, iNetPort, context, slot );
         } );
 
         dns->lookup();
 
         return true;
     }
-    else
-    {
-        return resolveHostnameAndPort ( strHost, iNetPort, context, slot );
-    }
+#endif
+
+    resolveHostname ( strHost, iNetPort, context, slot );
 
     return true;
 }
