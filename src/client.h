@@ -180,7 +180,6 @@ public:
 
     bool IsRunning() { return Sound.IsRunning(); }
     bool IsCallbackEntered() const { return Sound.IsCallbackEntered(); }
-    bool SetServerAddr ( QString strNAddr );
 
     // IPv6 Available
     bool IsIPv6Available() { return bIPv6Available; }
