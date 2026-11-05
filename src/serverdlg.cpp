@@ -499,21 +499,41 @@ CServerDlg::CServerDlg ( CServer* pNServP, CServerSettings* pNSetP, const bool b
     // that the connection less message respond may not make it back but that
     // is not critical since the next time Jamulus is started we have another
     // chance and the update check is not time-critical at all)
-    CHostAddress UpdateServerHostAddress;
-
-    // Send the request to two servers for redundancy if either or both of them
-    // has a higher release version number, the reply will trigger the notification.
 
     // Don't use SRV resolution when resolving update servers.
-
-    if ( NetworkUtil::ParseNetworkAddressBare ( UPDATECHECK1_ADDRESS, UpdateServerHostAddress, pServer->IsIPv6Available() ) )
+    if ( !NetworkUtil::resolveAddress ( UPDATECHECK1_ADDRESS, pServer->IsIPv6Available(), this, &CServerDlg::OnHostResolved, true, false ) )
     {
-        pServer->CreateCLServerListReqVerAndOSMes ( UpdateServerHostAddress );
+        qWarning() << "Cannot start update check for" << UPDATECHECK1_ADDRESS;
     }
 
-    if ( NetworkUtil::ParseNetworkAddressBare ( UPDATECHECK2_ADDRESS, UpdateServerHostAddress, pServer->IsIPv6Available() ) )
+    if ( !NetworkUtil::resolveAddress ( UPDATECHECK2_ADDRESS, pServer->IsIPv6Available(), this, &CServerDlg::OnHostResolved, true, false ) )
     {
-        pServer->CreateCLServerListReqVerAndOSMes ( UpdateServerHostAddress );
+        qWarning() << "Cannot start update check for" << UPDATECHECK2_ADDRESS;
+    }
+}
+
+void CServerDlg::OnHostResolved ( const QHostInfo& info, quint16 port )
+{
+    qDebug() << Q_FUNC_INFO << "info.hostName:" << info.hostName() << "port:" << port;
+
+    if ( info.error() != QHostInfo::NoError )
+    {
+        qDebug() << "Lookup failed:" << info.errorString();
+
+        return;
+    }
+
+    for ( const QHostAddress& HostAddr : info.addresses() )
+    {
+        qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
+        if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol ||
+             ( pServer->IsIPv6Available() && HostAddr.protocol() == QAbstractSocket::IPv6Protocol ) )
+        {
+            CHostAddress HostAddress ( HostAddr, port );
+
+            pServer->CreateCLServerListReqVerAndOSMes ( HostAddress );
+            return;
+        }
     }
 }
 
