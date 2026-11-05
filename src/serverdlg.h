@@ -149,4 +149,7 @@ public slots:
 
     // Our timer
     void OnTimer();
+
+    // From resolveAddress()
+    void OnHostResolved ( const QHostInfo& info, quint16 port );
 };
