@@ -626,13 +626,33 @@ void CClient::OnHostResolved ( const QHostInfo& info, quint16 port )
     if ( info.error() != QHostInfo::NoError )
     {
         qDebug() << "Lookup failed:" << info.errorString();
+
+        emit ConnectingFailed ( "Hostname not found" );
         return;
     }
 
     for ( const QHostAddress& HostAddr : info.addresses() )
     {
         qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
+        if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol || ( bIPv6Available && HostAddr.protocol() == QAbstractSocket::IPv6Protocol ) )
+        {
+            CHostAddress HostAddress ( HostAddr, port );
+            Channel.SetAddress ( HostAddress );
+            // sound device start can throw an exception, which we must catch here
+            try
+            {
+                Start();
+            }
+            catch ( const CGenErr& generr )
+            {
+                Stop();
+                emit ConnectingFailed ( generr.GetErrorText() );
+            }
+            return;
+        }
     }
+
+    emit ConnectingFailed ( "Hostname returned no usable addresses" );
 }
 
 bool CClient::SetServerAddr ( QString strNAddr )
@@ -1196,20 +1216,18 @@ void CClient::Connect ( const QString& strServerAddress, const QString& strServe
         // different server while connected behaves as a reconnect
         Disconnect();
 
-        // Set server address and connect if valid address was supplied
-        if ( SetServerAddr ( strServerAddress ) )
+        if ( NetworkUtil::resolveAddress ( strServerAddress, bIPv6Available, this, &CClient::OnHostResolved, true, true ) )
         {
-            SetConnectedServerName ( strServerName );
-            Start();
+            SetConnectedServerName ( strServerName ); // set if resolution initiated ok
         }
         else
         {
-            throw CGenErr ( tr ( "Received invalid server address. Please check for typos in the provided server address." ) );
+            emit ConnectingFailed ( tr ( "Received invalid server address. Please check for typos in the provided server address." ) );
         }
     }
     catch ( const CGenErr& generr )
     {
-        Stop();
+        // Stop(); // XXX: probably not needed?
         emit ConnectingFailed ( generr.GetErrorText() );
     }
 }
