@@ -619,65 +619,6 @@ void CClient::SetRemoteChanPan ( const int iId, const float fPan )
     StartTimerGainOrPan();
 }
 
-void CClient::OnHostResolved ( const QHostInfo& info, quint16 port )
-{
-    qDebug() << Q_FUNC_INFO /* << "info:" << info */ << "port:" << port;
-
-    if ( info.error() != QHostInfo::NoError )
-    {
-        qDebug() << "Lookup failed:" << info.errorString();
-
-        emit ConnectingFailed ( "Hostname not found" );
-        return;
-    }
-
-    for ( const QHostAddress& HostAddr : info.addresses() )
-    {
-        qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
-        if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol || ( bIPv6Available && HostAddr.protocol() == QAbstractSocket::IPv6Protocol ) )
-        {
-            CHostAddress HostAddress ( HostAddr, port );
-            Channel.SetAddress ( HostAddress );
-            // sound device start can throw an exception, which we must catch here
-            try
-            {
-                Start();
-            }
-            catch ( const CGenErr& generr )
-            {
-                Stop();
-                emit ConnectingFailed ( generr.GetErrorText() );
-            }
-            return;
-        }
-    }
-
-    emit ConnectingFailed ( "Hostname returned no usable addresses" );
-}
-
-bool CClient::SetServerAddr ( QString strNAddr )
-{
-    CHostAddress HostAddress;
-
-    bool status = NetworkUtil::resolveAddress ( strNAddr, bIPv6Available, this, &CClient::OnHostResolved, true, true );
-    qDebug() << "resolveAddress() returned" << status;
-
-    if ( NetworkUtil::ParseNetworkAddress ( strNAddr, HostAddress, bIPv6Available ) )
-    {
-        // apply address to the channel
-        Channel.SetAddress ( HostAddress );
-
-        // By default, set server name to HostAddress. If using the Connect() method, this may be overwritten
-        SetConnectedServerName ( HostAddress.toString() );
-
-        return true;
-    }
-    else
-    {
-        return false; // invalid address
-    }
-}
-
 bool CClient::GetAndResetbJitterBufferOKFlag()
 {
     // get the socket buffer put status flag and reset it
@@ -1202,7 +1143,7 @@ void CClient::Disconnect()
 /// @method
 /// @brief Connects to strServerAddress. If a connection is currently requested
 ///        or established, that connection is terminated first.
-/// @emit Connecting (strServerName) if SetServerAddr was valid. emit happens through Start().
+/// @emit Connecting (strServerName) if address was valid. emit happens through Start().
 ///       Use to set CClientDlg to show being connected
 /// @emit ConnectingFailed (error) if an error occurred
 ///       Use to display error message in CClientDlg
@@ -1230,6 +1171,42 @@ void CClient::Connect ( const QString& strServerAddress, const QString& strServe
         // Stop(); // XXX: probably not needed?
         emit ConnectingFailed ( generr.GetErrorText() );
     }
+}
+
+void CClient::OnHostResolved ( const QHostInfo& info, quint16 port )
+{
+    qDebug() << Q_FUNC_INFO << "info.hostName:" << info.hostName() << "port:" << port;
+
+    if ( info.error() != QHostInfo::NoError )
+    {
+        qDebug() << "Lookup failed:" << info.errorString();
+
+        emit ConnectingFailed ( "Hostname not found" );
+        return;
+    }
+
+    for ( const QHostAddress& HostAddr : info.addresses() )
+    {
+        qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
+        if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol || ( bIPv6Available && HostAddr.protocol() == QAbstractSocket::IPv6Protocol ) )
+        {
+            CHostAddress HostAddress ( HostAddr, port );
+            Channel.SetAddress ( HostAddress );
+            // sound device start can throw an exception, which we must catch here
+            try
+            {
+                Start();
+            }
+            catch ( const CGenErr& generr )
+            {
+                Stop();
+                emit ConnectingFailed ( generr.GetErrorText() );
+            }
+            return;
+        }
+    }
+
+    emit ConnectingFailed ( "Hostname returned no usable addresses" );
 }
 
 /// @method
