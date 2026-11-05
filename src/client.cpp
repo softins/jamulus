@@ -619,11 +619,30 @@ void CClient::SetRemoteChanPan ( const int iId, const float fPan )
     StartTimerGainOrPan();
 }
 
+void CClient::OnHostResolved ( const QHostInfo& info, quint16 port )
+{
+    qDebug() << Q_FUNC_INFO /* << "info:" << info */ << "port:" << port;
+
+    if ( info.error() != QHostInfo::NoError )
+    {
+        qDebug() << "Lookup failed:" << info.errorString();
+        return;
+    }
+
+    for ( const QHostAddress& HostAddr : info.addresses() )
+    {
+        qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
+    }
+}
+
 bool CClient::SetServerAddr ( QString strNAddr )
 {
     CHostAddress HostAddress;
 
     bool status = NetworkUtil::resolveAddress ( strNAddr, bIPv6Available, this, &NetworkUtil::hostResolved, true, true );
+    qDebug() << "resolveAddress() returned" << status;
+
+    status = NetworkUtil::resolveAddress ( strNAddr, bIPv6Available, this, &CClient::OnHostResolved, true, true );
     qDebug() << "resolveAddress() returned" << status;
 
     if ( NetworkUtil::ParseNetworkAddress ( strNAddr, HostAddress, bIPv6Available ) )

@@ -1139,10 +1139,10 @@ bool NetworkUtil::IsPrivateNetworkIP ( const QHostAddress& qhAddr )
     return false;
 }
 
-// Handle resolved address
+// Handle resolved address - static function for testing
 void NetworkUtil::hostResolved ( const QHostInfo& info, quint16 port )
 {
-    qDebug() << Q_FUNC_INFO /* << "info:" << info */ << "port:" << port;
+    qDebug() << Q_FUNC_INFO << "info.hostName:" << info.hostName() << "port:" << port;
 
     if ( info.error() != QHostInfo::NoError )
     {
@@ -1152,29 +1152,28 @@ void NetworkUtil::hostResolved ( const QHostInfo& info, quint16 port )
 
     for ( const QHostAddress& HostAddr : info.addresses() )
     {
-        qDebug() << qUtf8Printable (
-            QString ( "Resolved network address to %1 for proto %2" ).arg ( HostAddr.toString() ).arg ( HostAddr.protocol() ) );
+        qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
     }
 }
 
-static void resolveHostname ( const QString& strHostname,
-                              const quint16  port,
-                              QObject*       context,
-                              void ( *slot ) ( const QHostInfo& info, quint16 port ) )
+static void resolveHostname ( const QString&                                              strHostname,
+                              const quint16                                               port,
+                              QObject*                                                    context,
+                              std::function<void ( const QHostInfo& info, quint16 port )> slot )
 {
-    qDebug() << Q_FUNC_INFO << "strHostname:" << strHostname << "port:" << port << "context:" << context << "slot:" << slot;
+    qDebug() << Q_FUNC_INFO << "strHostname:" << strHostname << "port:" << port << "context:" << context;
 
     QHostInfo::lookupHost ( strHostname, context, [slot, port] ( const QHostInfo& info ) { slot ( info, port ); } );
 }
 
-bool NetworkUtil::resolveAddress ( const QString& strAddress,
-                                   const bool     bIPv6Available,
-                                   QObject*       context,
-                                   void ( *slot ) ( const QHostInfo& info, quint16 port ),
-                                   const bool allowHostname,
-                                   const bool allowSrv )
+bool NetworkUtil::resolveAddress ( const QString&                                              strAddress,
+                                   const bool                                                  bIPv6Available,
+                                   QObject*                                                    context,
+                                   std::function<void ( const QHostInfo& info, quint16 port )> slot,
+                                   const bool                                                  allowHostname,
+                                   const bool                                                  allowSrv )
 {
-    qDebug() << Q_FUNC_INFO << "str:" << strAddress << "context:" << context << "slot:" << slot;
+    qDebug() << Q_FUNC_INFO << "strAddress:" << strAddress << "context:" << context;
 
     QHostAddress InetAddr;
     quint16      iNetPort = DEFAULT_PORT_NUMBER;
@@ -1283,7 +1282,7 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
         dns->setName ( QString ( "_jamulus._udp.%1" ).arg ( strHost ) );
 
         QObject::connect ( dns, &QDnsLookup::finished, context, [strHost, iNetPort, context, dns, slot]() {
-            qDebug() << Q_FUNC_INFO << "context:" << context << "dns:" << dns << "slot:" << slot;
+            qDebug() << Q_FUNC_INFO << "context:" << context << "dns:" << dns;
 
             if ( dns->error() == QDnsLookup::NoError )
             {
@@ -1341,19 +1340,6 @@ bool NetworkUtil::resolveAddress ( const QString& strAddress,
 #endif
 
     resolveHostname ( strHost, iNetPort, context, slot );
-
-    return true;
-}
-
-template<typename Functor>
-bool NetworkUtil::resolveAddress ( const QString& strAddress,
-                                   const bool     bIPv6Available,
-                                   QObject*       context,
-                                   Functor        functor,
-                                   const bool     allowHostname,
-                                   const bool     allowSrv )
-{
-    qDebug() << Q_FUNC_INFO << "str:" << strAddress << "context:" << context << "functor:" << functor;
 
     return true;
 }
