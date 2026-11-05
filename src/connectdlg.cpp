@@ -312,24 +312,51 @@ void CConnectDlg::RequestServerList()
     }
     cbxDirectory->blockSignals ( false );
 
-    // Get the IP address of the directory server (using the ParseNetworkAddress
+    // Get the IP address of the directory server (using the async resolveAddress
     // function) when the connect dialog is opened, this seems to be the correct
     // time to do it. Note that in case of custom directories we
     // use iCustomDirectoryIndex as an index into the vector.
 
-    // Allow IPv4 only for communicating with Directories
-    if ( NetworkUtil::ParseNetworkAddress (
-             NetworkUtil::GetDirectoryAddress ( pSettings->eDirectoryType, pSettings->vstrDirectoryAddress[pSettings->iCustomDirectoryIndex] ),
-             haDirectoryAddress,
-             false ) )
-    {
-        // send the request for the server list
-        emit ReqServerListQuery ( haDirectoryAddress );
+    // Currently allow IPv4 only for communicating with Directories
 
-        // start timer, if this message did not get any respond to retransmit
-        // the server list request message
-        TimerReRequestServList.start ( SERV_LIST_REQ_UPDATE_TIME_MS );
-        TimerInitialSort.start ( SERV_LIST_REQ_UPDATE_TIME_MS ); // reuse the time value
+    const QString strDirectoryAddress =
+        NetworkUtil::GetDirectoryAddress ( pSettings->eDirectoryType, pSettings->vstrDirectoryAddress[pSettings->iCustomDirectoryIndex] );
+
+    if ( !NetworkUtil::resolveAddress ( strDirectoryAddress, pClient->IsIPv6Available(), this, &CConnectDlg::OnHostResolved, true, true ) )
+    {
+        qWarning() << "Cannot start directory fetch from" << strDirectoryAddress;
+    }
+}
+
+void CConnectDlg::OnHostResolved ( const QHostInfo& info, quint16 port )
+{
+    qDebug() << Q_FUNC_INFO << "info.hostName:" << info.hostName() << "port:" << port;
+
+    if ( info.error() != QHostInfo::NoError )
+    {
+        qDebug() << "Lookup failed:" << info.errorString();
+
+        return;
+    }
+
+    for ( const QHostAddress& HostAddr : info.addresses() )
+    {
+        qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
+        if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol /* ||
+             ( pClient->IsIPv6Available() && HostAddr.protocol() == QAbstractSocket::IPv6Protocol ) */ )
+        {
+            haDirectoryAddress = CHostAddress ( HostAddr, port );
+
+            // send the request for the server list
+            emit ReqServerListQuery ( haDirectoryAddress );
+
+            // start timer, if this message did not get any respond to retransmit
+            // the server list request message
+            TimerReRequestServList.start ( SERV_LIST_REQ_UPDATE_TIME_MS );
+            TimerInitialSort.start ( SERV_LIST_REQ_UPDATE_TIME_MS ); // reuse the time value
+
+            return;
+        }
     }
 }
 
