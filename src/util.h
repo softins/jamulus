@@ -1116,20 +1116,35 @@ public:
     static QString      GetDirectoryAddress ( const EDirectoryType eDirectoryType, const QString& strDirectoryAddress );
     static bool         IsPrivateNetworkIP ( const QHostAddress& qhAddr );
 
+    // static receiver for testing
     static void hostResolved ( const QHostInfo& info, quint16 port );
+    // resolveAddress() with object method as slot
+    template<typename T>
     static bool resolveAddress ( const QString& strAddress,
                                  const bool     bIPv6Available,
-                                 QObject*       context,
-                                 void ( *slot ) ( const QHostInfo& info, quint16 port ),
+                                 T*             context,
+                                 void ( T::*slot ) ( const QHostInfo& info, quint16 port ),
                                  const bool allowHostname = false,
-                                 const bool allowSrv      = false );
-    template<typename Functor>
-    static bool resolveAddress ( const QString& strAddress,
-                                 const bool     bIPv6Available,
-                                 QObject*       context,
-                                 Functor        functor,
-                                 const bool     allowHostname = false,
-                                 const bool     allowSrv      = false );
+                                 const bool allowSrv      = false )
+    {
+        qDebug() << Q_FUNC_INFO << "strAddress:" << strAddress << "context:" << context;
+
+        // this is not a recursive call, as the parameter types are different
+        return resolveAddress (
+            strAddress,
+            bIPv6Available,
+            context,
+            [context, slot] ( const QHostInfo& info, quint16 port ) { ( context->*slot ) ( info, port ); },
+            allowHostname,
+            allowSrv );
+    }
+    // resolveAddress() with static method or function as slot
+    static bool resolveAddress ( const QString&                                              strAddress,
+                                 const bool                                                  bIPv6Available,
+                                 QObject*                                                    context,
+                                 std::function<void ( const QHostInfo& info, quint16 port )> slot,
+                                 const bool                                                  allowHostname = false,
+                                 const bool                                                  allowSrv      = false );
 };
 
 // Operating system utility functions ------------------------------------------
