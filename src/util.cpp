@@ -956,6 +956,8 @@ bool NetworkUtil::ParseNetworkAddressBare ( QString strAddress, CHostAddress& Ho
     QHostAddress InetAddr;
     unsigned int iNetPort = DEFAULT_PORT_NUMBER;
 
+    qDebug() << Q_FUNC_INFO << strAddress;
+
     // qInfo() << qUtf8Printable ( QString ( "Parsing network address %1" ).arg ( strAddress ) );
 
     // init requested host address with invalid address first
@@ -1166,6 +1168,43 @@ static void resolveHostname ( const QString&                                    
     QHostInfo::lookupHost ( strHostname, context, [slot, port] ( const QHostInfo& info ) { slot ( info, port ); } );
 }
 
+static bool validateHostnameFormat ( const QString& strHostname )
+{
+    // Validate hostname format before trying to resolve:
+    // (all matches are non-greedy)
+    static const QRegularExpression plainHostRegex (
+        // # beginning of string
+        "^"
+        // # doesn't contain underscore (this is so that we can use \w later on for [A-Za-z0-9])
+        "(?!.*?_)"
+        // # doesn't contain two dots in a row
+        "(?!.*?\\.\\.)"
+        // # doesn't have only digits in the last element (also eliminates raw IP addresses)
+        "(?!.*\\.\\d+\\.?$)"
+        // # doesn't contain dash at the beginning of a label
+        "(?!(?:\\w+?\\.)?-[\\w\\.\\-]*?)"
+        // # doesn't contain dash at the end of a label
+        "(?!\\w+?-\\.(?:[\\w\\.\\-]+?))"
+        // # starts with an alphanumeric char
+        "(?=\\w)"
+        // # not longer than 253 chars
+        "(?![\\w\\.\\-]{254})"
+        // # doesn't contain a label longer than 63 char
+        "(?!.*?[\\w\\-]{64})"
+        // # allowed chars alphanumeric, dot and dash
+        "[\\w\\.\\-]+?"
+        // # end of string
+        "$" );
+
+    // qDebug() << plainHostRegex;
+
+    auto match = plainHostRegex.match ( strHostname );
+
+    // qDebug() << "match" << match << "hasMatch" << match.hasMatch();
+
+    return match.hasMatch();
+}
+
 bool NetworkUtil::resolveAddress ( const QString&                                              strAddress,
                                    const bool                                                  bIPv6Available,
                                    QObject*                                                    context,
@@ -1269,6 +1308,11 @@ bool NetworkUtil::resolveAddress ( const QString&                               
     {
         // not allowing hostname lookup
         qDebug() << "Hostname lookup disabled";
+        return false;
+    }
+    else if (!validateHostnameFormat( strHost )) {
+        // invalid format for hostname
+        qDebug() << "Hostname format invalid";
         return false;
     }
 #ifndef DISABLE_SRV_DNS
