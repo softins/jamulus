@@ -1117,8 +1117,12 @@ public:
     static QString      GetDirectoryAddress ( const EDirectoryType eDirectoryType, const QString& strDirectoryAddress );
     static bool         IsPrivateNetworkIP ( const QHostAddress& qhAddr );
 
-    // static receiver for testing
-    static void hostResolved ( const QHostInfo& info, quint16 port );
+    // parse literal address and optional port with no hostname lookup and address returned directly
+    static bool parseAddressLiteral ( const QString& strAddress, const bool bIPv6Available, CHostAddress& haHostAddress );
+
+    // resolve address and optional port with possible hostname and/or SRC lookup,
+    // with resolved address(es) returned asynchronously in a slot function
+
     // resolveAddress() with object method as slot
     template<typename T>
     static bool resolveAddress ( const QString& strAddress,
@@ -1139,6 +1143,7 @@ public:
             allowHostname,
             allowSrv );
     }
+
     // resolveAddress() with static method or function as slot
     static bool resolveAddress ( const QString&                                              strAddress,
                                  const bool                                                  bIPv6Available,
@@ -1146,6 +1151,9 @@ public:
                                  std::function<void ( const QHostInfo& info, quint16 port )> slot,
                                  const bool                                                  allowHostname = false,
                                  const bool                                                  allowSrv      = false );
+
+    // static receiver for testing
+    static void hostResolved ( const QHostInfo& info, quint16 port );
 };
 
 // Operating system utility functions ------------------------------------------
