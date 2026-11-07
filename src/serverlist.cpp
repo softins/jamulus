@@ -87,15 +87,15 @@ CServerListEntry CServerListEntry::parse ( QString strHAddr,
                                            bool    bIPv6Available )
 {
     CHostAddress haServerHostAddr;
-    NetworkUtil::ParseNetworkAddress ( strHAddr, haServerHostAddr, bIPv6Available );
-    if ( CHostAddress() == haServerHostAddr )
+    CHostAddress haServerLocalAddr;
+
+    if ( !NetworkUtil::parseAddressLiteral ( strHAddr, bIPv6Available, haServerHostAddr ) ||
+         !NetworkUtil::parseAddressLiteral ( strLHAddr, bIPv6Available, haServerLocalAddr ) || CHostAddress() == haServerHostAddr )
     {
         // do not proceed without server host address!
         return CServerListEntry();
     }
 
-    CHostAddress haServerLocalAddr;
-    NetworkUtil::ParseNetworkAddress ( strLHAddr, haServerLocalAddr, bIPv6Available );
     if ( haServerLocalAddr.iPort == 0 )
     {
         haServerLocalAddr.iPort = haServerHostAddr.iPort;
@@ -827,9 +827,13 @@ bool CServerListManager::Load()
             continue;
         }
 
-        // This uses ParseNetworkAddressBare because it is just parsing ip:host that was saved to the file.
-        // Therefore no SRV lookup is appropriate.
-        NetworkUtil::ParseNetworkAddressBare ( slLine[0], haServerHostAddr, pServer->IsIPv6Available() );
+        // This uses parseAddressLiteral because it is just parsing ip:host that was saved to the file.
+        if ( !NetworkUtil::parseAddressLiteral ( slLine[0], pServer->IsIPv6Available(), haServerHostAddr ) )
+        {
+            qWarning() << "Skipping invalid host entry for" << slLine[0];
+            continue;
+        }
+
         int iIdx = IndexOf ( haServerHostAddr );
         if ( iIdx != INVALID_INDEX )
         {
