@@ -1003,6 +1003,18 @@ void CServerListManager::SetRegistered ( const bool bIsRegister )
         return;
     }
 
+    // If we are unregistering from a directory we previously registered to,
+    // just use the saved address from registering, without address resolution.
+
+    if ( !bIsRegister )
+    {
+        // unregister server if it is registered - regardless of success of parse
+        SetSvrRegStatus ( SRS_NOT_REGISTERED );
+
+        pConnLessProtocol->CreateCLUnregisterServerMes ( DirectoryAddress );
+        return;
+    }
+
     // It is very important to unlock the Mutex before doing address resolution,
     // so that the event loop can run and any other timers that need the mutex
     // can obtain it. Otherwise there is the possibility of deadlock when doing
@@ -1015,39 +1027,55 @@ void CServerListManager::SetRegistered ( const bool bIsRegister )
     // changed in the meanwhile.
     // Allow IPv4 only for communicating with Directories
     // Use SRV DNS discovery for directory connections, fallback to A/AAAA if none.
-    const QString strNetworkAddress      = NetworkUtil::GetDirectoryAddress ( DirectoryType, strDirectoryAddress );
-    const bool    bDirectoryAddressValid = NetworkUtil::ParseNetworkAddress ( strNetworkAddress, DirectoryAddress, false );
+    const QString strNetworkAddress = NetworkUtil::GetDirectoryAddress ( DirectoryType, strDirectoryAddress );
+
+    // allow hostname resolution and SRV resolution
+    const bool bDirectoryAddressValid =
+        NetworkUtil::resolveAddress ( strNetworkAddress, false, this, &CServerListManager::OnHostResolved, true, true );
 
     // lock the mutex again now that the address has been resolved.
     locker.relock();
 
-    if ( bIsRegister )
+    if ( !bDirectoryAddressValid )
     {
-        if ( bDirectoryAddressValid )
-        {
-            // register server
-            SetSvrRegStatus ( SRS_REQUESTED );
+        SetSvrRegStatus ( SRS_BAD_ADDRESS );
+    }
+}
 
-            // For a registered server, the server properties are stored in the
-            // very first item in the server list (which is actually no server list
-            // but just one item long for the registered server).
-            pConnLessProtocol->CreateCLRegisterServerExMes ( DirectoryAddress, ServerList[0].LHostAddr, ServerList[0] );
-        }
-        else
+void CServerListManager::OnHostResolved ( const QHostInfo& info, quint16 port )
+{
+    qDebug() << Q_FUNC_INFO << "info.hostName:" << info.hostName() << "port:" << port;
+
+    QMutexLocker locker ( &Mutex );
+
+    if ( info.error() == QHostInfo::NoError )
+    {
+        for ( const QHostAddress& HostAddr : info.addresses() )
         {
-            SetSvrRegStatus ( SRS_BAD_ADDRESS );
+            qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
+            if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol /* ||
+                 ( pServer->IsIPv6Available() && HostAddr.protocol() == QAbstractSocket::IPv6Protocol ) */ )
+            {
+                DirectoryAddress = CHostAddress ( HostAddr, port );
+
+                // register server
+                SetSvrRegStatus ( SRS_REQUESTED );
+
+                // For a registered server, the server properties are stored in the
+                // very first item in the server list (which is actually no server list
+                // but just one item long for the registered server).
+                pConnLessProtocol->CreateCLRegisterServerExMes ( DirectoryAddress, ServerList[0].LHostAddr, ServerList[0] );
+                return;
+            }
         }
+        qDebug() << "Lookup failed: Hostname returned no usable addresses";
     }
     else
     {
-        // unregister server if it is registered - regardless of success of parse
-        SetSvrRegStatus ( SRS_NOT_REGISTERED );
-
-        if ( bDirectoryAddressValid )
-        {
-            pConnLessProtocol->CreateCLUnregisterServerMes ( DirectoryAddress );
-        }
+        qDebug() << "Lookup failed:" << info.errorString();
     }
+
+    SetSvrRegStatus ( SRS_BAD_ADDRESS );
 }
 
 void CServerListManager::SetSvrRegStatus ( ESvrRegStatus eNSvrRegStatus )
