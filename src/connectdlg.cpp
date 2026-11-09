@@ -879,7 +879,7 @@ void CConnectDlg::OnTimerPing()
 
         // try to parse host address string which is stored as user data
         // in the server list item GUI control element
-        // the data to be parsed is just IP:port, so no SRV discovery is needed
+        // the data to be parsed is just IP:port, so no hostname lookup is needed
         if ( NetworkUtil::ParseAddressLiteral ( pCurListViewItem->data ( LVC_NAME, Qt::UserRole ).toString(),
                                                 pClient->IsIPv6Available(),
                                                 haServerAddress ) )
