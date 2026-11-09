@@ -607,12 +607,12 @@ CClientDlg::CClientDlg ( CClient*         pNCliP,
     // chance and the update check is not time-critical at all)
 
     // Don't use SRV resolution when resolving update servers.
-    if ( !NetworkUtil::resolveAddress ( UPDATECHECK1_ADDRESS, pClient->IsIPv6Available(), this, &CClientDlg::OnHostResolved, true, false ) )
+    if ( !NetworkUtil::ResolveAddress ( UPDATECHECK1_ADDRESS, pClient->IsIPv6Available(), this, &CClientDlg::OnHostResolved, true, false ) )
     {
         qWarning() << "Cannot start update check for" << UPDATECHECK1_ADDRESS;
     }
 
-    if ( !NetworkUtil::resolveAddress ( UPDATECHECK2_ADDRESS, pClient->IsIPv6Available(), this, &CClientDlg::OnHostResolved, true, false ) )
+    if ( !NetworkUtil::ResolveAddress ( UPDATECHECK2_ADDRESS, pClient->IsIPv6Available(), this, &CClientDlg::OnHostResolved, true, false ) )
     {
         qWarning() << "Cannot start update check for" << UPDATECHECK2_ADDRESS;
     }

@@ -312,7 +312,7 @@ void CConnectDlg::RequestServerList()
     }
     cbxDirectory->blockSignals ( false );
 
-    // Get the IP address of the directory server (using the async resolveAddress
+    // Get the IP address of the directory server (using the async ResolveAddress
     // function) when the connect dialog is opened, this seems to be the correct
     // time to do it. Note that in case of custom directories we
     // use iCustomDirectoryIndex as an index into the vector.
@@ -322,7 +322,7 @@ void CConnectDlg::RequestServerList()
     const QString strDirectoryAddress =
         NetworkUtil::GetDirectoryAddress ( pSettings->eDirectoryType, pSettings->vstrDirectoryAddress[pSettings->iCustomDirectoryIndex] );
 
-    if ( !NetworkUtil::resolveAddress ( strDirectoryAddress, pClient->IsIPv6Available(), this, &CConnectDlg::OnHostResolved, true, true ) )
+    if ( !NetworkUtil::ResolveAddress ( strDirectoryAddress, pClient->IsIPv6Available(), this, &CConnectDlg::OnHostResolved, true, true ) )
     {
         qWarning() << "Cannot start directory fetch from" << strDirectoryAddress;
     }
@@ -880,7 +880,7 @@ void CConnectDlg::OnTimerPing()
         // try to parse host address string which is stored as user data
         // in the server list item GUI control element
         // the data to be parsed is just IP:port, so no SRV discovery is needed
-        if ( NetworkUtil::parseAddressLiteral ( pCurListViewItem->data ( LVC_NAME, Qt::UserRole ).toString(),
+        if ( NetworkUtil::ParseAddressLiteral ( pCurListViewItem->data ( LVC_NAME, Qt::UserRole ).toString(),
                                                 pClient->IsIPv6Available(),
                                                 haServerAddress ) )
         {

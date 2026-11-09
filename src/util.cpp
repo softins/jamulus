@@ -967,7 +967,7 @@ static bool parseHostAndPort ( const QString& strAddress, bool& bLiteralAddrOut,
 }
 
 // parse literal address and optional port with no hostname lookup and address returned directly
-bool NetworkUtil::parseAddressLiteral ( const QString& strAddress, const bool bIPv6Available, CHostAddress& haHostAddress )
+bool NetworkUtil::ParseAddressLiteral ( const QString& strAddress, const bool bIPv6Available, CHostAddress& haHostAddress )
 {
     QHostAddress InetAddr;
     quint16      iNetPort;
@@ -998,8 +998,8 @@ bool NetworkUtil::parseAddressLiteral ( const QString& strAddress, const bool bI
     return false; // invalid address
 }
 
-// resolveAddress() with resolved address(es) returned asynchronously in a slot function
-bool NetworkUtil::resolveAddress ( const QString&                                              strAddress,
+// ResolveAddress() with resolved address(es) returned asynchronously in a slot function
+bool NetworkUtil::ResolveAddress ( const QString&                                              strAddress,
                                    const bool                                                  bIPv6Available,
                                    QObject*                                                    context,
                                    std::function<void ( const QHostInfo& info, quint16 port )> slot,

@@ -188,7 +188,7 @@ CClientRpc::CClientRpc ( CClient* pClient, CClientSettings* pSettings, CRpcServe
         }
 
         // Start asynchronous address resolution with lambda callback slot
-        bool accepted = NetworkUtil::resolveAddress (
+        bool accepted = NetworkUtil::ResolveAddress (
             jsonDirectoryIp.toString(),
             false, // Currently IPv4 only for directories
             pClient,

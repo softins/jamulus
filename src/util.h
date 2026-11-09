@@ -1104,14 +1104,14 @@ class NetworkUtil
 {
 public:
     // parse literal address and optional port with no hostname lookup and address returned directly
-    static bool parseAddressLiteral ( const QString& strAddress, const bool bIPv6Available, CHostAddress& haHostAddress );
+    static bool ParseAddressLiteral ( const QString& strAddress, const bool bIPv6Available, CHostAddress& haHostAddress );
 
     // resolve address and optional port with possible hostname and/or SRC lookup,
     // with resolved address(es) returned asynchronously in a slot function
 
-    // resolveAddress() with object method as slot
+    // ResolveAddress() with object method as slot
     template<typename T>
-    static bool resolveAddress ( const QString& strAddress,
+    static bool ResolveAddress ( const QString& strAddress,
                                  const bool     bIPv6Available,
                                  T*             context,
                                  void ( T::*slot ) ( const QHostInfo& info, quint16 port ),
@@ -1119,7 +1119,7 @@ public:
                                  const bool allowSrv      = false )
     {
         // this is not a recursive call, as the parameter types are different
-        return resolveAddress (
+        return ResolveAddress (
             strAddress,
             bIPv6Available,
             context,
@@ -1128,8 +1128,8 @@ public:
             allowSrv );
     }
 
-    // resolveAddress() with static method or function as slot
-    static bool resolveAddress ( const QString&                                              strAddress,
+    // ResolveAddress() with static method or function as slot
+    static bool ResolveAddress ( const QString&                                              strAddress,
                                  const bool                                                  bIPv6Available,
                                  QObject*                                                    context,
                                  std::function<void ( const QHostInfo& info, quint16 port )> slot,

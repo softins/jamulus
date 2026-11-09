@@ -89,8 +89,8 @@ CServerListEntry CServerListEntry::parse ( QString strHAddr,
     CHostAddress haServerHostAddr;
     CHostAddress haServerLocalAddr;
 
-    if ( !NetworkUtil::parseAddressLiteral ( strHAddr, bIPv6Available, haServerHostAddr ) ||
-         !NetworkUtil::parseAddressLiteral ( strLHAddr, bIPv6Available, haServerLocalAddr ) || CHostAddress() == haServerHostAddr )
+    if ( !NetworkUtil::ParseAddressLiteral ( strHAddr, bIPv6Available, haServerHostAddr ) ||
+         !NetworkUtil::ParseAddressLiteral ( strLHAddr, bIPv6Available, haServerLocalAddr ) || CHostAddress() == haServerHostAddr )
     {
         // do not proceed without server host address!
         return CServerListEntry();
@@ -827,8 +827,8 @@ bool CServerListManager::Load()
             continue;
         }
 
-        // This uses parseAddressLiteral because it is just parsing ip:host that was saved to the file.
-        if ( !NetworkUtil::parseAddressLiteral ( slLine[0], pServer->IsIPv6Available(), haServerHostAddr ) )
+        // This uses ParseAddressLiteral because it is just parsing ip:host that was saved to the file.
+        if ( !NetworkUtil::ParseAddressLiteral ( slLine[0], pServer->IsIPv6Available(), haServerHostAddr ) )
         {
             qWarning() << "Skipping invalid host entry for" << slLine[0];
             continue;
@@ -1031,7 +1031,7 @@ void CServerListManager::SetRegistered ( const bool bIsRegister )
 
     // allow hostname resolution and SRV resolution
     const bool bDirectoryAddressValid =
-        NetworkUtil::resolveAddress ( strNetworkAddress, false, this, &CServerListManager::OnHostResolved, true, true );
+        NetworkUtil::ResolveAddress ( strNetworkAddress, false, this, &CServerListManager::OnHostResolved, true, true );
 
     // lock the mutex again now that the address has been resolved.
     locker.relock();

@@ -1157,7 +1157,7 @@ void CClient::Connect ( const QString& strServerAddress, const QString& strServe
         // different server while connected behaves as a reconnect
         Disconnect();
 
-        if ( NetworkUtil::resolveAddress ( strServerAddress, bIPv6Available, this, &CClient::OnHostResolved, true, true ) )
+        if ( NetworkUtil::ResolveAddress ( strServerAddress, bIPv6Available, this, &CClient::OnHostResolved, true, true ) )
         {
             SetConnectedServerName ( strServerName ); // set if resolution initiated ok
         }
