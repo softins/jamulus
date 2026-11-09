@@ -1136,9 +1136,6 @@ public:
                                  const bool                                                  allowHostname = false,
                                  const bool                                                  allowSrv      = false );
 
-    // static receiver for testing
-    static void hostResolved ( const QHostInfo& info, quint16 port );
-
     static QString      FixAddress ( const QString& strAddress );
     static CHostAddress GetLocalAddress();
     static CHostAddress GetLocalAddress6();

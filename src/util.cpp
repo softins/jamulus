@@ -856,23 +856,6 @@ void PlayAudioAlert ( QUrl soundUrl )
 \******************************************************************************/
 // Network utility functions ---------------------------------------------------
 
-// Handle resolved address - static function for testing
-void NetworkUtil::hostResolved ( const QHostInfo& info, quint16 port )
-{
-    qDebug() << Q_FUNC_INFO << "info.hostName:" << info.hostName() << "port:" << port;
-
-    if ( info.error() != QHostInfo::NoError )
-    {
-        qDebug() << "Lookup failed:" << info.errorString();
-        return;
-    }
-
-    for ( const QHostAddress& HostAddr : info.addresses() )
-    {
-        qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
-    }
-}
-
 static void resolveHostname ( const QString&                                              strHostname,
                               const quint16                                               port,
                               QObject*                                                    context,
