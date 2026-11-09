@@ -620,18 +620,15 @@ CClientDlg::CClientDlg ( CClient*         pNCliP,
 
 void CClientDlg::OnHostResolved ( const QHostInfo& info, quint16 port )
 {
-    qDebug() << Q_FUNC_INFO << "info.hostName:" << info.hostName() << "port:" << port;
-
     if ( info.error() != QHostInfo::NoError )
     {
-        qDebug() << "Lookup failed:" << info.errorString();
-
+        qWarning() << "Update lookup failed:" << info.errorString();
         return;
     }
 
     for ( const QHostAddress& HostAddr : info.addresses() )
     {
-        qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
+        // qInfo() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
         if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol ||
              ( HostAddr.protocol() == QAbstractSocket::IPv6Protocol && pClient->IsIPv6Available() ) )
         {

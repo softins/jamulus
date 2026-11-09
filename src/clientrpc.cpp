@@ -190,7 +190,7 @@ CClientRpc::CClientRpc ( CClient* pClient, CClientSettings* pSettings, CRpcServe
         // Start asynchronous address resolution with lambda callback slot
         bool accepted = NetworkUtil::resolveAddress (
             jsonDirectoryIp.toString(),
-            false, // IPv4 only for directories
+            false, // Currently IPv4 only for directories
             pClient,
             [pClient] ( const QHostInfo& info, quint16 port ) {
                 // this callback runs later, after the RPC handler has returned

@@ -1175,19 +1175,15 @@ void CClient::Connect ( const QString& strServerAddress, const QString& strServe
 
 void CClient::OnHostResolved ( const QHostInfo& info, quint16 port )
 {
-    qDebug() << Q_FUNC_INFO << "info.hostName:" << info.hostName() << "port:" << port;
-
     if ( info.error() != QHostInfo::NoError )
     {
-        qDebug() << "Lookup failed:" << info.errorString();
-
         emit ConnectingFailed ( "Cannot connect: " + info.errorString() );
         return;
     }
 
     for ( const QHostAddress& HostAddr : info.addresses() )
     {
-        qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
+        // qInfo() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
         if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol || ( HostAddr.protocol() == QAbstractSocket::IPv6Protocol && bIPv6Available ) )
         {
             CHostAddress HostAddress ( HostAddr, port );

@@ -514,18 +514,15 @@ CServerDlg::CServerDlg ( CServer* pNServP, CServerSettings* pNSetP, const bool b
 
 void CServerDlg::OnHostResolved ( const QHostInfo& info, quint16 port )
 {
-    qDebug() << Q_FUNC_INFO << "info.hostName:" << info.hostName() << "port:" << port;
-
     if ( info.error() != QHostInfo::NoError )
     {
-        qDebug() << "Lookup failed:" << info.errorString();
-
+        qWarning() << "Update lookup failed:" << info.errorString();
         return;
     }
 
     for ( const QHostAddress& HostAddr : info.addresses() )
     {
-        qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
+        // qinfo() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
         if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol ||
              ( HostAddr.protocol() == QAbstractSocket::IPv6Protocol && pServer->IsIPv6Available() ) )
         {

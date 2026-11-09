@@ -317,7 +317,7 @@ void CConnectDlg::RequestServerList()
     // time to do it. Note that in case of custom directories we
     // use iCustomDirectoryIndex as an index into the vector.
 
-    // Currently allow IPv4 only for communicating with Directories
+    // Currently allow only IPv4 for communicating with Directories
 
     const QString strDirectoryAddress =
         NetworkUtil::GetDirectoryAddress ( pSettings->eDirectoryType, pSettings->vstrDirectoryAddress[pSettings->iCustomDirectoryIndex] );
@@ -330,18 +330,15 @@ void CConnectDlg::RequestServerList()
 
 void CConnectDlg::OnHostResolved ( const QHostInfo& info, quint16 port )
 {
-    qDebug() << Q_FUNC_INFO << "info.hostName:" << info.hostName() << "port:" << port;
-
     if ( info.error() != QHostInfo::NoError )
     {
-        qDebug() << "Lookup failed:" << info.errorString();
-
+        qWarning() << "Directory lookup failed:" << info.errorString();
         return;
     }
 
     for ( const QHostAddress& HostAddr : info.addresses() )
     {
-        qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
+        // qInfo() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
         if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol /* ||
              ( HostAddr.protocol() == QAbstractSocket::IPv6Protocol && pClient->IsIPv6Available() ) */ )
         {

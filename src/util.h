@@ -1103,12 +1103,6 @@ public:
 class NetworkUtil
 {
 public:
-    static QString      FixAddress ( const QString& strAddress );
-    static CHostAddress GetLocalAddress();
-    static CHostAddress GetLocalAddress6();
-    static QString      GetDirectoryAddress ( const EDirectoryType eDirectoryType, const QString& strDirectoryAddress );
-    static bool         IsPrivateNetworkIP ( const QHostAddress& qhAddr );
-
     // parse literal address and optional port with no hostname lookup and address returned directly
     static bool parseAddressLiteral ( const QString& strAddress, const bool bIPv6Available, CHostAddress& haHostAddress );
 
@@ -1124,8 +1118,6 @@ public:
                                  const bool allowHostname = false,
                                  const bool allowSrv      = false )
     {
-        qDebug() << Q_FUNC_INFO << "strAddress:" << strAddress << "context:" << context;
-
         // this is not a recursive call, as the parameter types are different
         return resolveAddress (
             strAddress,
@@ -1146,6 +1138,12 @@ public:
 
     // static receiver for testing
     static void hostResolved ( const QHostInfo& info, quint16 port );
+
+    static QString      FixAddress ( const QString& strAddress );
+    static CHostAddress GetLocalAddress();
+    static CHostAddress GetLocalAddress6();
+    static QString      GetDirectoryAddress ( const EDirectoryType eDirectoryType, const QString& strDirectoryAddress );
+    static bool         IsPrivateNetworkIP ( const QHostAddress& qhAddr );
 };
 
 // Operating system utility functions ------------------------------------------

@@ -1044,15 +1044,13 @@ void CServerListManager::SetRegistered ( const bool bIsRegister )
 
 void CServerListManager::OnHostResolved ( const QHostInfo& info, quint16 port )
 {
-    qDebug() << Q_FUNC_INFO << "info.hostName:" << info.hostName() << "port:" << port;
-
     QMutexLocker locker ( &Mutex );
 
     if ( info.error() == QHostInfo::NoError )
     {
         for ( const QHostAddress& HostAddr : info.addresses() )
         {
-            qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
+            // qInfo() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
             if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol /* ||
                  ( HostAddr.protocol() == QAbstractSocket::IPv6Protocol && pServer->IsIPv6Available() ) */ )
             {
@@ -1068,11 +1066,11 @@ void CServerListManager::OnHostResolved ( const QHostInfo& info, quint16 port )
                 return;
             }
         }
-        qDebug() << "Lookup failed: Hostname returned no usable addresses";
+        qWarning() << "Directory lookup failed: Hostname returned no usable addresses";
     }
     else
     {
-        qDebug() << "Lookup failed:" << info.errorString();
+        qWarning() << "Directory lookup failed:" << info.errorString();
     }
 
     SetSvrRegStatus ( SRS_BAD_ADDRESS );
