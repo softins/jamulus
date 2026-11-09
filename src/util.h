@@ -110,7 +110,6 @@ class CClient; // forward declaration of CClient
 /* Definitions ****************************************************************/
 #define METER_FLY_BACK             2
 #define INVALID_MIDI_CH            -1 // invalid MIDI channel definition
-#define DNS_SRV_RESOLVE_TIMEOUT_MS 500
 
 /* Global functions ***********************************************************/
 // converting float to short
