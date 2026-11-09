@@ -343,7 +343,7 @@ void CConnectDlg::OnHostResolved ( const QHostInfo& info, quint16 port )
     {
         qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
         if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol /* ||
-             ( pClient->IsIPv6Available() && HostAddr.protocol() == QAbstractSocket::IPv6Protocol ) */ )
+             ( HostAddr.protocol() == QAbstractSocket::IPv6Protocol && pClient->IsIPv6Available() ) */ )
         {
             haDirectoryAddress = CHostAddress ( HostAddr, port );
 

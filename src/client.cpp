@@ -1188,7 +1188,7 @@ void CClient::OnHostResolved ( const QHostInfo& info, quint16 port )
     for ( const QHostAddress& HostAddr : info.addresses() )
     {
         qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
-        if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol || ( bIPv6Available && HostAddr.protocol() == QAbstractSocket::IPv6Protocol ) )
+        if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol || ( HostAddr.protocol() == QAbstractSocket::IPv6Protocol && bIPv6Available ) )
         {
             CHostAddress HostAddress ( HostAddr, port );
             Channel.SetAddress ( HostAddress );

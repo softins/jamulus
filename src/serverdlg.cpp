@@ -527,7 +527,7 @@ void CServerDlg::OnHostResolved ( const QHostInfo& info, quint16 port )
     {
         qDebug() << "Resolved network address to" << HostAddr << "for proto" << HostAddr.protocol();
         if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol ||
-             ( pServer->IsIPv6Available() && HostAddr.protocol() == QAbstractSocket::IPv6Protocol ) )
+             ( HostAddr.protocol() == QAbstractSocket::IPv6Protocol && pServer->IsIPv6Available() ) )
         {
             CHostAddress HostAddress ( HostAddr, port );
 

@@ -855,199 +855,6 @@ void PlayAudioAlert ( QUrl soundUrl )
 * Other Classes                                                                *
 \******************************************************************************/
 // Network utility functions ---------------------------------------------------
-bool NetworkUtil::ParseNetworkAddressString ( QString strAddress, QHostAddress& InetAddr, const bool bIPv6Available )
-{
-    // try to get host by name, assuming
-    // that the string contains a valid host name string or IP address
-    const QHostInfo HostInfo = QHostInfo::fromName ( strAddress );
-
-    if ( HostInfo.error() != QHostInfo::NoError )
-    {
-        // qInfo() << qUtf8Printable ( QString ( "Invalid hostname" ) );
-        return false; // invalid address
-    }
-
-    foreach ( const QHostAddress HostAddr, HostInfo.addresses() )
-    {
-        // qInfo() << qUtf8Printable ( QString ( "Resolved network address to %1 for proto %2" ) .arg ( HostAddr.toString() ) .arg (
-        // HostAddr.protocol() ) );
-        if ( HostAddr.protocol() == QAbstractSocket::IPv4Protocol || ( bIPv6Available && HostAddr.protocol() == QAbstractSocket::IPv6Protocol ) )
-        {
-            InetAddr = HostAddr;
-            return true;
-        }
-    }
-    return false;
-}
-
-#ifndef DISABLE_SRV_DNS
-bool NetworkUtil::ParseNetworkAddressSrv ( QString strAddress, CHostAddress& HostAddress, const bool bIPv6Available )
-{
-    // init requested host address with invalid address first
-    HostAddress = CHostAddress();
-
-    QRegularExpression plainHostRegex ( "^([^\\[:0-9.][^:]*)$" );
-    if ( plainHostRegex.match ( strAddress ).capturedStart() != 0 )
-    {
-        // not a plain hostname? then don't attempt SRV lookup and fail
-        // immediately.
-        return false;
-    }
-
-    QDnsLookup* dns = new QDnsLookup();
-    dns->setType ( QDnsLookup::SRV );
-    dns->setName ( QString ( "_jamulus._udp.%1" ).arg ( strAddress ) );
-    dns->lookup();
-    // QDnsLookup::lookup() works asynchronously. Therefore, wait for
-    // it to complete here by resuming the main loop here.
-    // This is not nice and blocks the UI, but is similar to what
-    // the regular resolve function does as well.
-    QTime dieTime = QTime::currentTime().addMSecs ( DNS_SRV_RESOLVE_TIMEOUT_MS );
-    while ( QTime::currentTime() < dieTime && !dns->isFinished() )
-    {
-        QCoreApplication::processEvents ( QEventLoop::ExcludeUserInputEvents, 100 );
-    }
-    QList<QDnsServiceRecord> records = dns->serviceRecords();
-    dns->deleteLater();
-    if ( records.length() != 1 )
-    {
-        return false;
-    }
-    QDnsServiceRecord record = records.first();
-    if ( record.target() == "." || record.target() == "" )
-    {
-        // RFC2782 says that "." indicates that the service is not available.
-        // Qt strips the trailing dot, which is why we check for empty string
-        // as well. Therefore, the "." part might be redundant, but this would
-        // need further testing to confirm.
-        // End processing here (= return true), but pass back an
-        // invalid HostAddress to let the connect logic fail properly.
-        HostAddress = CHostAddress ( QHostAddress ( "." ), 0 );
-        return true;
-    }
-    qDebug() << qUtf8Printable (
-        QString ( "resolved %1 to a single SRV record: %2:%3" ).arg ( strAddress ).arg ( record.target() ).arg ( record.port() ) );
-
-    QHostAddress InetAddr;
-    if ( ParseNetworkAddressString ( record.target(), InetAddr, bIPv6Available ) )
-    {
-        HostAddress = CHostAddress ( InetAddr, record.port() );
-        return true;
-    }
-    return false;
-}
-#endif
-
-bool NetworkUtil::ParseNetworkAddress ( QString strAddress, CHostAddress& HostAddress, const bool bIPv6Available )
-{
-#ifndef DISABLE_SRV_DNS
-    // Try SRV-based discovery first:
-    if ( ParseNetworkAddressSrv ( strAddress, HostAddress, bIPv6Available ) )
-    {
-        return true;
-    }
-#endif
-    // Try regular connect via plain IP or host name lookup (A/AAAA):
-    return ParseNetworkAddressBare ( strAddress, HostAddress, bIPv6Available );
-}
-
-bool NetworkUtil::ParseNetworkAddressBare ( QString strAddress, CHostAddress& HostAddress, const bool bIPv6Available )
-{
-    QHostAddress InetAddr;
-    unsigned int iNetPort = DEFAULT_PORT_NUMBER;
-
-    qDebug() << Q_FUNC_INFO << strAddress;
-
-    // qInfo() << qUtf8Printable ( QString ( "Parsing network address %1" ).arg ( strAddress ) );
-
-    // init requested host address with invalid address first
-    HostAddress = CHostAddress();
-
-    // Allow the following address formats:
-    // [addr4or6]
-    // [addr4or6]:port
-    // addr4
-    // addr4:port
-    // hostname
-    // hostname:port
-    // (where addr4or6 is a literal IPv4 or IPv6 address, and addr4 is a literal IPv4 address
-
-    bool               bLiteralAddr = false;
-    QRegularExpression rx1 ( "^\\[([^]]*)\\](?::(\\d+))?$" ); // [addr4or6] or [addr4or6]:port
-    QRegularExpression rx2 ( "^([^:]*)(?::(\\d+))?$" );       // addr4 or addr4:port or host or host:port
-
-    QString strPort;
-
-    QRegularExpressionMatch rx1match = rx1.match ( strAddress );
-    QRegularExpressionMatch rx2match = rx2.match ( strAddress );
-
-    // parse input address with rx1 and rx2 in turn, capturing address/host and port
-    if ( rx1match.capturedStart() == 0 )
-    {
-        // literal address within []
-        strAddress   = rx1match.captured ( 1 );
-        strPort      = rx1match.captured ( 2 );
-        bLiteralAddr = true; // don't allow hostname within []
-    }
-    else if ( rx2match.capturedStart() == 0 )
-    {
-        // hostname or IPv4 address
-        strAddress = rx2match.captured ( 1 );
-        strPort    = rx2match.captured ( 2 );
-    }
-    else
-    {
-        // invalid format
-        // qInfo() << qUtf8Printable ( QString ( "Invalid address format" ) );
-        return false;
-    }
-
-    if ( !strPort.isEmpty() )
-    {
-        // a port number was given: extract port number
-        iNetPort = strPort.toInt();
-
-        if ( iNetPort >= 65536 )
-        {
-            // invalid port number
-            // qInfo() << qUtf8Printable ( QString ( "Invalid port number specified" ) );
-            return false;
-        }
-    }
-
-    // first try if this is an IP number an can directly applied to QHostAddress
-    if ( InetAddr.setAddress ( strAddress ) )
-    {
-        if ( !bIPv6Available && InetAddr.protocol() == QAbstractSocket::IPv6Protocol )
-        {
-            // do not allow IPv6 addresses if not enabled
-            // qInfo() << qUtf8Printable ( QString ( "IPv6 addresses disabled" ) );
-            return false;
-        }
-    }
-    else
-    {
-        // it was no valid IP address. If literal required, return as invalid
-        if ( bLiteralAddr )
-        {
-            // qInfo() << qUtf8Printable ( QString ( "Invalid literal IP address" ) );
-            return false; // invalid address
-        }
-
-        if ( !ParseNetworkAddressString ( strAddress, InetAddr, bIPv6Available ) )
-        {
-            // no valid address found
-            // qInfo() << qUtf8Printable ( QString ( "No IP address found for hostname" ) );
-            return false;
-        }
-    }
-
-    // qInfo() << qUtf8Printable ( QString ( "Parsed network address %1" ).arg ( InetAddr.toString() ) );
-
-    HostAddress = CHostAddress ( InetAddr, iNetPort );
-
-    return true;
-}
 
 CHostAddress NetworkUtil::GetLocalAddress()
 {
@@ -1295,7 +1102,7 @@ bool NetworkUtil::parseAddressLiteral ( const QString& strAddress, const bool bI
     // try if this is an IP number and can directly applied to QHostAddress
     if ( InetAddr.setAddress ( strHost ) )
     {
-        if ( !bIPv6Available && InetAddr.protocol() == QAbstractSocket::IPv6Protocol )
+        if ( InetAddr.protocol() == QAbstractSocket::IPv6Protocol && !bIPv6Available )
         {
             // do not allow IPv6 addresses if not enabled
             qDebug() << "IPv6 addresses disabled";
@@ -1334,7 +1141,7 @@ bool NetworkUtil::resolveAddress ( const QString&                               
     // first try if this is an IP number and can directly applied to QHostAddress
     if ( InetAddr.setAddress ( strHost ) )
     {
-        if ( !bIPv6Available && InetAddr.protocol() == QAbstractSocket::IPv6Protocol )
+        if ( InetAddr.protocol() == QAbstractSocket::IPv6Protocol && !bIPv6Available )
         {
             // do not allow IPv6 addresses if not enabled
             qDebug() << "IPv6 addresses disabled";
