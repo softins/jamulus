@@ -54,7 +54,7 @@ jobs:
     - name: Check .sh with shellcheck
       run: find -name '*.sh' -not -path './libs/*' -exec shellcheck --shell=bash {} +
     - name: Install shfmt
-      run: sudo snap install shfmt
+      run: sudo apt-get -qq install shfmt
     - name: Check .sh with shfmt
       run: shfmt -d .
 
