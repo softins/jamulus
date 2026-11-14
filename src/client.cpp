@@ -1166,12 +1166,20 @@ void CClient::Connect ( const QString& strServerAddress, const QString& strServe
                  strServerAddress,
                  bIPv6Available,
                  this,
-                 [this, seq] ( const QHostInfo& info, quint16 port ) {
-                     // check that the request has not been invalidated
-                     if ( seq == iResolverSeq )
-                     {
-                         OnHostResolved ( info, port ); // handle result
-                     }
+                 [this, seq, strServerAddress] ( const QHostInfo& info, quint16 port ) {
+                     qDebug() << "Delaying OnHostResolved" << seq << "for" << strServerAddress;
+                     QTimer::singleShot ( 10000, this, [this, seq, info, port, strServerAddress]() {
+                         // check that the request has not been invalidated
+                         if ( seq == iResolverSeq )
+                         {
+                             qDebug() << "Running OnHostResolved" << seq << "for" << strServerAddress;
+                             OnHostResolved ( info, port ); // handle result
+                         }
+                         else
+                         {
+                             qDebug() << "Skipping OnHostResolved" << seq << "for" << strServerAddress;
+                         }
+                     } );
                  },
                  true,    // allow hostname resolution
                  true ) ) // allow SVR resolution
