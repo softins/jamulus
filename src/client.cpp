@@ -1243,6 +1243,7 @@ void CClient::SetConnectionState ( const EConnectionState eNewConnectionState )
 {
     if ( eConnectionState != eNewConnectionState )
     {
+        qDebug() << "Connection state" << eConnectionState << "=>" << eNewConnectionState;
         eConnectionState = eNewConnectionState;
         emit ConnectionStateChanged ( eConnectionState );
     }
