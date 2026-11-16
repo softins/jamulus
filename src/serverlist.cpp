@@ -1052,12 +1052,20 @@ void CServerListManager::SetRegistered ( const bool bIsRegister )
         strNetworkAddress,
         false, // IPv4 only at present
         this,
-        [this, seq] ( const QHostInfo& info, quint16 port ) {
-            // check that the request has not been superseded
-            if ( seq == iResolverSeq )
-            {
-                OnHostResolved ( info, port ); // handle result
-            }
+        [this, seq, strNetworkAddress] ( const QHostInfo& info, quint16 port ) {
+            qDebug() << "Delaying OnHostResolved" << seq << "for" << strNetworkAddress;
+            QTimer::singleShot ( 10000, this, [this, seq, info, port, strNetworkAddress] () {
+                // check that the request has not been superseded
+                if ( seq == iResolverSeq )
+                {
+                    qDebug() << "Running OnHostResolved" << seq << "for" << strNetworkAddress;
+                    OnHostResolved ( info, port ); // handle result
+                }
+                else
+                {
+                    qDebug() << "Skipping OnHostResolved" << seq << "for" << strNetworkAddress;
+                }
+            } );
         },
         true,   // allow hostname resolution
         true ); // allow SVR resolution
