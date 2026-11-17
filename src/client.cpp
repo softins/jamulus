@@ -1233,8 +1233,7 @@ void CClient::OnHostResolved ( const QHostInfo& info, quint16 port )
             }
             catch ( const CGenErr& generr )
             {
-                Stop();
-                // Stop() sets the connection state to CS_DISCONNECTED
+                Stop(); // sets the connection state to CS_DISCONNECTED
                 emit ConnectingFailed ( generr.GetErrorText() );
             }
             return;
