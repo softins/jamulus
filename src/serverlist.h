@@ -253,7 +253,11 @@ public slots:
     void OnTimerPollList();
     void OnTimerPingServerInList();
     void OnTimerPingServers();
-    void OnTimerRefreshRegistration() { SetRegistered ( true ); }
+    void OnTimerRefreshRegistration()
+    {
+        qDebug() << Q_FUNC_INFO;
+        SetRegistered ( true );
+    }
     void OnTimerCLRegisterServerResp();
     void OnTimerIsPermanent() { ServerList[0].bPermanentOnline = true; }
 
