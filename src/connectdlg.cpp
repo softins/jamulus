@@ -336,12 +336,20 @@ void CConnectDlg::RequestServerList()
              strDirectoryAddress,
              false, // IPv4 only at present
              this,
-             [this, seq] ( const QHostInfo& info, quint16 port ) {
-                 // check that the request has not been superseded
-                 if ( seq == iResolverSeq )
-                 {
-                     OnHostResolved ( info, port ); // handle result
-                 }
+             [this, seq, strDirectoryAddress] ( const QHostInfo& info, quint16 port ) {
+                 qDebug() << "Delaying OnHostResolved" << seq << "for" << strDirectoryAddress;
+                 QTimer::singleShot ( 10000, this, [this, seq, info, port, strDirectoryAddress]() {
+                     // check that the request has not been superseded
+                     if ( seq == iResolverSeq )
+                     {
+                         qDebug() << "Running OnHostResolved" << seq << "for" << strDirectoryAddress;
+                         OnHostResolved ( info, port ); // handle result
+                     }
+                     else
+                     {
+                         qDebug() << "Skipping OnHostResolved" << seq << "for" << strDirectoryAddress;
+                     }
+                 } );
              },
              true,    // allow hostname resolution
              true ) ) // allow SVR resolution
@@ -673,7 +681,6 @@ void CConnectDlg::OnServerListItemDoubleClicked ( QTreeWidgetItem* Item, int )
 
 void CConnectDlg::OnCustomDirectoriesChanged()
 {
-
     QString strPreviousSelection = cbxDirectory->currentText();
     UpdateDirectoryComboBox();
     // after updating the combobox, we must re-select the previous directory selection
